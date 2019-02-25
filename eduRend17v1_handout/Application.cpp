@@ -178,8 +178,7 @@ void Application::Render(float DeltaTime)
 	//m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pMatrixBuffer);
 	m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pMatrixBufferA);
 	m_pDeviceContext->PSSetConstantBuffers(1, 1, &m_pPositionBufferA);
-	m_pDeviceContext->PSSetConstantBuffers(2, 1, &m_pMaterialBufferA);
-
+	
 	MapUpdateAndUnmapSubresource(m_pDeviceContext, m_pPositionBufferA, &m_PositionDataA, sizeof(PositionBufferA));
 
 	for (GameObject* pGameObject : m_GameObjects)
@@ -188,7 +187,6 @@ void Application::Render(float DeltaTime)
 		//MapUpdateAndUnmapSubresource(m_pDeviceContext, m_pMatrixBuffer, &m_MatrixData, sizeof(MatrixBuffer));
 		m_MatrixDataA.ModelToWorld = pGameObject->GetTransformationMatrixA();
 		MapUpdateAndUnmapSubresource(m_pDeviceContext, m_pMatrixBufferA, &m_MatrixDataA, sizeof(MatrixBufferA));
-		MapUpdateAndUnmapSubresource(m_pDeviceContext, m_pMaterialBufferA, &pGameObject->GetMaterialDataA(), sizeof(MaterialBufferA));
 		pGameObject->Render(m_pDeviceContext);
 	}
 

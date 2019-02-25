@@ -128,6 +128,7 @@
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Common\Camera.cpp" />
     <ClCompile Include="Common\Direct3D.cpp" />
+    <ClCompile Include="Common\OBJLoader.cpp" />
     <ClCompile Include="Common\Timer.cpp" />
     <ClCompile Include="Common\Window.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -145,6 +146,7 @@
     <ClInclude Include="Buffers\PositionBuffer.h" />
     <ClInclude Include="Common\Camera.h" />
     <ClInclude Include="Common\Direct3D.h" />
+    <ClInclude Include="Common\OBJLoader.h" />
     <ClInclude Include="Common\Timer.h" />
     <ClInclude Include="Common\Window.h" />
     <ClInclude Include="Models\GameObject.h" />

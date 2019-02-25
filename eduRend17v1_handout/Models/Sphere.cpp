@@ -64,10 +64,7 @@ Sphere::Sphere(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext)
 		* mat4f::rotation(fPI / 2, 0.0f, 1.0f, 0.0f)
 		* mat4f::scaling(0.05f);
 
-	m_MaterialDataA.Ka = vec3f(0.0f, 0.5880f, 1.0f);
-	m_MaterialDataA.Kd = vec3f(0.5880f, 0.5880f, 0.5880f);
-	m_MaterialDataA.Ks = vec3f(1.0f, 1.0f, 1.0f);
-	m_MaterialDataA.Shininess = 10.0f;
+	CreateConstantBuffer(pDevice, sizeof(MaterialBufferA), &m_pMaterialBuffer);
 }
 
 
@@ -85,4 +82,30 @@ void Sphere::Update()
 
 void Sphere::Render(ID3D11DeviceContext * pDeviceContext)
 {
+	UINT32 stride = sizeof(vertex_t);
+	UINT32 offset = 0;
+	pDeviceContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &stride, &offset);
+	pDeviceContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	pDeviceContext->PSSetConstantBuffers(2, 1, &m_pMaterialBuffer);
+
+	// Iterate drawcalls
+	for (auto& irange : m_IndexRanges)
+	{
+		// Fetch material
+		const material_t& mtl = m_Materials[irange.mtl_index];
+
+		m_MaterialDataA.Ka = mtl.Ka;
+		m_MaterialDataA.Kd = mtl.Kd;
+		m_MaterialDataA.Ks = mtl.Ks;
+		m_MaterialDataA.Shininess = 10.0;
+		MapUpdateAndUnmapSubresource(pDeviceContext, m_pMaterialBuffer, &m_MaterialDataA, sizeof(MaterialBufferA));
+
+
+		// Bind textures
+		pDeviceContext->PSSetShaderResources(0, 1, &mtl.map_Kd_TexSRV);
+		// ...other textures here (see material_t)
+
+		// Make the drawcall
+		pDeviceContext->DrawIndexed(irange.size, irange.start, 0);
+	}
 }

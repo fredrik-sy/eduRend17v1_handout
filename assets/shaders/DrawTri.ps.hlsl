@@ -42,7 +42,7 @@ float4 PS_main(PSIn input) : SV_Target
     float RdotV = dot(R, V);
     float3 Specular = Ks * max(pow(RdotV, Shininess), 0);
 
-    return float4(Specular, 1);
+    return float4(Ka + Diffuse + Specular, 1);
 
 	// Debug shading #1: map and return normal as a color, i.e. from [-1,1]->[0,1] per component
 	// The 4:th component is opacity and should be = 1

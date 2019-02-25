@@ -25,7 +25,6 @@ private:
 
 public:
 	virtual inline mat4f GetTransformationMatrixA() override;
-	virtual inline MaterialBufferA GetMaterialDataA() override;
 
 private:
 	mat4f m_TransformationA;
@@ -48,8 +47,3 @@ inline mat4f Sponza::GetTransformationMatrixA()
 	return m_TransformationA;
 }
 
-
-inline MaterialBufferA Sponza::GetMaterialDataA()
-{
-	return m_MaterialDataA;
-}

@@ -81,6 +81,9 @@
     <ClCompile Include="Models\Sphere.cpp">
       <Filter>Source Files\Models</Filter>
     </ClCompile>
+    <ClCompile Include="Common\OBJLoader.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\vec\mat.h">
@@ -139,6 +142,9 @@
     </ClInclude>
     <ClInclude Include="Models\Sphere.h">
       <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\OBJLoader.h">
+      <Filter>Header Files\Common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

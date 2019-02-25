@@ -23,7 +23,6 @@ private:
 
 public:
 	virtual inline mat4f GetTransformationMatrixA() override;
-	virtual inline MaterialBufferA GetMaterialDataA() override;
 
 private:
 	mat4f m_TransformationA;
@@ -46,8 +45,3 @@ inline mat4f Sphere::GetTransformationMatrixA()
 	return m_TransformationA;
 }
 
-
-inline MaterialBufferA Sphere::GetMaterialDataA()
-{
-	return m_MaterialDataA;
-}
