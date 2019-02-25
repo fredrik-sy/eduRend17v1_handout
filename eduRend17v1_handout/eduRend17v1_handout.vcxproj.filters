@@ -13,5 +13,140 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\source">
+      <UniqueIdentifier>{b1a5c033-c728-4b5a-8976-f59ddd48c672}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\source\vec">
+      <UniqueIdentifier>{efc732d7-5da9-4212-b0a4-a56364e586ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\source">
+      <UniqueIdentifier>{047dd39f-27cf-45e7-9bf4-0970afa5da26}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\source\vec">
+      <UniqueIdentifier>{303ce4e1-cb06-4e2f-a115-d797fd160cec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Buffers">
+      <UniqueIdentifier>{a4ce2c05-a926-4726-bf50-c0185b24d3ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Common">
+      <UniqueIdentifier>{845cf2ab-7f40-471c-8387-e422efd696fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Models">
+      <UniqueIdentifier>{6d8d73d4-528e-45a3-a5e0-0f2f3a459917}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Common">
+      <UniqueIdentifier>{ed4c98cf-61d5-4d9b-b912-6429c4f4ad6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Models">
+      <UniqueIdentifier>{05eec4ba-175e-4b5f-b76e-821a7f4ab656}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader Files">
+      <UniqueIdentifier>{8f5ea27e-5d44-4f76-ba90-50297e6f3022}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="source\vec\vec.cpp">
+      <Filter>Source Files\source\vec</Filter>
+    </ClCompile>
+    <ClCompile Include="source\vec\mat.cpp">
+      <Filter>Source Files\source\vec</Filter>
+    </ClCompile>
+    <ClCompile Include="source\InputHandler.cpp">
+      <Filter>Source Files\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\mesh.cpp">
+      <Filter>Source Files\source</Filter>
+    </ClCompile>
+    <ClCompile Include="Application.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Window.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Direct3D.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Camera.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Models\Sponza.cpp">
+      <Filter>Source Files\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Timer.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Models\Sphere.cpp">
+      <Filter>Source Files\Models</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="source\vec\mat.h">
+      <Filter>Header Files\source\vec</Filter>
+    </ClInclude>
+    <ClInclude Include="source\vec\math.h">
+      <Filter>Header Files\source\vec</Filter>
+    </ClInclude>
+    <ClInclude Include="source\vec\vec.h">
+      <Filter>Header Files\source\vec</Filter>
+    </ClInclude>
+    <ClInclude Include="source\drawcall.h">
+      <Filter>Header Files\source</Filter>
+    </ClInclude>
+    <ClInclude Include="source\InputHandler.h">
+      <Filter>Header Files\source</Filter>
+    </ClInclude>
+    <ClInclude Include="source\mesh.h">
+      <Filter>Header Files\source</Filter>
+    </ClInclude>
+    <ClInclude Include="source\parseutil.h">
+      <Filter>Header Files\source</Filter>
+    </ClInclude>
+    <ClInclude Include="Application.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Camera.h">
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Direct3D.h">
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Window.h">
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Buffers\MaterialBuffer.h">
+      <Filter>Header Files\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="Buffers\MatrixBuffer.h">
+      <Filter>Header Files\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="Buffers\PositionBuffer.h">
+      <Filter>Header Files\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="Models\GameObject.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Models\Sponza.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Timer.h">
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Models\Sphere.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\assets\shaders\DrawTri.vs.hlsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\assets\shaders\DrawTri.ps.hlsl">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
