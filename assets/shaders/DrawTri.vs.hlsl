@@ -42,7 +42,7 @@ PSIn VS_main(VSIn input)
     output.Pos = mul(MVP, float4(input.Pos, 1));
     output.WorldPos = mul(ModelToWorld, float4(input.Pos, 1)).xyz;
     output.Normal = normalize(mul(ModelToWorld, float4(input.Normal, 0)).xyz);
-    output.TexCoord = input.TexCoord;
-		
+    output.TexCoord = float2(input.TexCoord.x, -input.TexCoord.y);
+	
     return output;
 }

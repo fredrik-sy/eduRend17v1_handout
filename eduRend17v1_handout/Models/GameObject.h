@@ -16,9 +16,7 @@ public:
 	virtual ~GameObject() {};
 	virtual void Update() = 0;
 	virtual void Render(ID3D11DeviceContext* pDeviceContext) = 0;
-	virtual inline XMMATRIX GetTransformationMatrix() = 0;
-
-	virtual inline mat4f GetTransformationMatrixA() = 0;
+	virtual inline mat4f GetTransformationMatrix() = 0;
 	
 protected:
 	ID3D11Buffer* m_pVertexBuffer;

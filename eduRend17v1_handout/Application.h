@@ -38,9 +38,7 @@ private:
 	ID3D11VertexShader* m_pVertexShader;
 	ID3D11SamplerState* m_pSamplerState;
 	IDXGISwapChain* m_pSwapChain;
-	//ID3D11Buffer* m_pMatrixBuffer;
-
-	//MatrixBuffer m_MatrixData;
+	
 	Camera m_Camera;
 	InputHandler m_InputHandler;
 	vector<GameObject*> m_GameObjects;
@@ -54,11 +52,10 @@ private:
 
 public:
 private:
-	ID3D11Buffer* m_pMatrixBufferA;
-	ID3D11Buffer* m_pPositionBufferA;
-	ID3D11Buffer* m_pMaterialBufferA;
-	MatrixBufferA m_MatrixDataA;
-	PositionBufferA m_PositionDataA;
+	ID3D11Buffer* m_pMatrixBuffer;
+	ID3D11Buffer* m_pPositionBuffer;
+	MatrixBuffer m_MatrixData;
+	PositionBuffer m_PositionData;
 
 };
 

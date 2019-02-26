@@ -47,15 +47,8 @@ float4 PS_main(PSIn input) : SV_Target
     
     float4 TextureColor = Texture.Sample(Sampler, input.TexCoord);
     
-    if (TextureColor.x == 0 && TextureColor.y == 0 && TextureColor.z == 0)
-        return float4(Ka + Diffuse + Specular, 1);
+    if (TextureColor.x == 0 && TextureColor.y == 0 && TextureColor.z == 0 && TextureColor.w == 0)
+        return float4(Ka + Diffuse + Specular, 1) * float4(input.Normal*0.5 + 0.5, 1);
 
     return float4(Ka + Diffuse + Specular, 1) * TextureColor;
-
-	// Debug shading #1: map and return normal as a color, i.e. from [-1,1]->[0,1] per component
-	// The 4:th component is opacity and should be = 1
-	//return float4(input.Normal*0.5+0.5, 1);
-	
-	// Debug shading #2: map and return texture coordinates as a color (blue = 0)
-	//return float4(input.TexCoord, 0, 1);
 }

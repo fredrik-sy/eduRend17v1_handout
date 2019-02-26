@@ -50,8 +50,7 @@ Application::~Application()
 	SAFE_RELEASE(m_pPixelShader);
 	SAFE_RELEASE(m_pRasterizerState);
 	SAFE_RELEASE(m_pSamplerState);
-	//SAFE_RELEASE(m_pMatrixBuffer);
-	SAFE_RELEASE(m_pMatrixBufferA);
+	SAFE_RELEASE(m_pMatrixBuffer);
 
 	for (GameObject* pGameObject : m_GameObjects)
 		SAFE_DELETE(pGameObject);
@@ -114,9 +113,8 @@ void Application::Run()
 
 void Application::Initialize()
 {
-	CreateConstantBuffer(m_pDevice, sizeof(MatrixBufferA), &m_pMatrixBufferA);
-	CreateConstantBuffer(m_pDevice, sizeof(PositionBufferA), &m_pPositionBufferA);
-	CreateConstantBuffer(m_pDevice, sizeof(MaterialBufferA), &m_pMaterialBufferA);
+	CreateConstantBuffer(m_pDevice, sizeof(MatrixBuffer), &m_pMatrixBuffer);
+	CreateConstantBuffer(m_pDevice, sizeof(PositionBuffer), &m_pPositionBuffer);
 
 	m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);		// How the pipeline interprets vertex data that is bound to the input-assembler stage. Different topology can be used for different vertex data.
 	m_pDeviceContext->IASetInputLayout(m_pInputLayout);										// Bind to input-assembler stage.
@@ -132,7 +130,7 @@ void Application::LoadContent()
 	m_GameObjects.push_back(new Sphere(m_pDevice, m_pDeviceContext));
 	m_Camera.SetAspectRatio(GetAspectRatio());
 	m_Camera.SetPosition(0.0f, 0.0f, 5.0f);
-	m_PositionDataA.LightPosition = vec3f(0.0f, 5.0f, 5.0f);
+	m_PositionData.LightPosition = vec3f(0.0f, 5.0f, 5.0f);
 }
 
 
@@ -154,11 +152,9 @@ void Application::Update(float DeltaTime)
 	for (GameObject* pGameObject : m_GameObjects)
 		pGameObject->Update();
 
-	//m_MatrixData.Projection = m_Camera.GetProjectionMatrix();
-	//m_MatrixData.WorldToView = m_Camera.GetWorldToViewMatrix();
-	m_MatrixDataA.Projection = m_Camera.GetProjectionMatrixA();
-	m_MatrixDataA.WorldToView = m_Camera.GetWorldToViewMatrixA();
-	m_PositionDataA.CameraPosition = m_Camera.GetPosition();
+	m_MatrixData.Projection = m_Camera.GetProjectionMatrixA();
+	m_MatrixData.WorldToView = m_Camera.GetWorldToViewMatrixA();
+	m_PositionData.CameraPosition = m_Camera.GetPosition();
 }
 
 
@@ -176,21 +172,19 @@ void Application::Render(float DeltaTime)
 	m_pDeviceContext->GSSetShader(NULL, NULL, 0);				// Geometry shader.
 	m_pDeviceContext->PSSetShader(m_pPixelShader, NULL, 0);
 
+	// Set samplers to the pixel shader pipeline stage.
 	m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerState);
 
-	// Set buffers used by the shader pipeline stage.
-	//m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pMatrixBuffer);
-	m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pMatrixBufferA);
-	m_pDeviceContext->PSSetConstantBuffers(1, 1, &m_pPositionBufferA);
+	// Set buffers used by the pipeline stage.
+	m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pMatrixBuffer);
+	m_pDeviceContext->PSSetConstantBuffers(1, 1, &m_pPositionBuffer);
 	
-	MapUpdateAndUnmapSubresource(m_pDeviceContext, m_pPositionBufferA, &m_PositionDataA, sizeof(PositionBufferA));
+	MapUpdateAndUnmapSubresource(m_pDeviceContext, m_pPositionBuffer, &m_PositionData, sizeof(PositionBuffer));
 
 	for (GameObject* pGameObject : m_GameObjects)
 	{
-		//m_MatrixData.ModelToWorld = pGameObject->GetTransformationMatrix();
-		//MapUpdateAndUnmapSubresource(m_pDeviceContext, m_pMatrixBuffer, &m_MatrixData, sizeof(MatrixBuffer));
-		m_MatrixDataA.ModelToWorld = pGameObject->GetTransformationMatrixA();
-		MapUpdateAndUnmapSubresource(m_pDeviceContext, m_pMatrixBufferA, &m_MatrixDataA, sizeof(MatrixBufferA));
+		m_MatrixData.ModelToWorld = pGameObject->GetTransformationMatrix();
+		MapUpdateAndUnmapSubresource(m_pDeviceContext, m_pMatrixBuffer, &m_MatrixData, sizeof(MatrixBuffer));
 		pGameObject->Render(m_pDeviceContext);
 	}
 
