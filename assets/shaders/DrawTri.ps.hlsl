@@ -1,4 +1,7 @@
 
+Texture2D Texture : register(t0);
+sampler Sampler : register(s0);
+
 
 cbuffer PositionBuffer : register(b1)
 {
@@ -41,8 +44,13 @@ float4 PS_main(PSIn input) : SV_Target
 
     float RdotV = dot(R, V);
     float3 Specular = Ks * max(pow(RdotV, Shininess), 0);
+    
+    float4 TextureColor = Texture.Sample(Sampler, input.TexCoord);
+    
+    if (TextureColor.x == 0 && TextureColor.y == 0 && TextureColor.z == 0)
+        return float4(Ka + Diffuse + Specular, 1);
 
-    return float4(Ka + Diffuse + Specular, 1);
+    return float4(Ka + Diffuse + Specular, 1) * TextureColor;
 
 	// Debug shading #1: map and return normal as a color, i.e. from [-1,1]->[0,1] per component
 	// The 4:th component is opacity and should be = 1

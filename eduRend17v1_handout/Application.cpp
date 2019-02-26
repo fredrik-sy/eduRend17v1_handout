@@ -14,6 +14,7 @@ Application::Application(HINSTANCE hInstance, WNDPROC lpfnWndProc)
 	CreateDepthStencilResource(m_pDevice, GetClientWidth(), GetClientHeight(), &m_pDepthStencilResource);
 	CreateDepthStencilView(m_pDevice, m_pDepthStencilResource, &m_pDepthStencilView);
 	CreateRasterizerState(m_pDevice, &m_pRasterizerState);
+	CreateSamplerState(m_pDevice, &m_pSamplerState);
 
 	ID3DBlob* pCode;
 	D3D11_INPUT_ELEMENT_DESC InputElementDescs[] = {
@@ -48,6 +49,7 @@ Application::~Application()
 	SAFE_RELEASE(m_pInputLayout);
 	SAFE_RELEASE(m_pPixelShader);
 	SAFE_RELEASE(m_pRasterizerState);
+	SAFE_RELEASE(m_pSamplerState);
 	//SAFE_RELEASE(m_pMatrixBuffer);
 	SAFE_RELEASE(m_pMatrixBufferA);
 
@@ -130,7 +132,7 @@ void Application::LoadContent()
 	m_GameObjects.push_back(new Sphere(m_pDevice, m_pDeviceContext));
 	m_Camera.SetAspectRatio(GetAspectRatio());
 	m_Camera.SetPosition(0.0f, 0.0f, 5.0f);
-	m_PositionDataA.LightPosition = vec3f(0.0f, 50.0f, -30.0f);
+	m_PositionDataA.LightPosition = vec3f(0.0f, 5.0f, 5.0f);
 }
 
 
@@ -173,6 +175,8 @@ void Application::Render(float DeltaTime)
 	m_pDeviceContext->DSSetShader(NULL, NULL, 0);				// Domain shader.
 	m_pDeviceContext->GSSetShader(NULL, NULL, 0);				// Geometry shader.
 	m_pDeviceContext->PSSetShader(m_pPixelShader, NULL, 0);
+
+	m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerState);
 
 	// Set buffers used by the shader pipeline stage.
 	//m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pMatrixBuffer);

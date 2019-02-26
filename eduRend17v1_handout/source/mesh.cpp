@@ -44,6 +44,15 @@ void mesh_t::load_mtl(	std::string path,
             // no parsed material so can't add any content
             continue;
         }
+		else if (sscanf(line.c_str(), "map_Ka %[^\n]", str0) == 1)
+		{
+			// search for the image file and ignore the rest
+			std::string mapfile;
+			if (find_filename_from_suffixes(str0, ALLOWED_TEXTURE_SUFFIXES, mapfile))
+				current_mtl->map_Ka = path + mapfile;
+			else
+				throw std::runtime_error(std::string("Error: no allowed format found for 'map_Ka' in material ") + current_mtl->name);
+		}
         else if (sscanf(line.c_str(), "map_Kd %[^\n]", str0) == 1)
         {
             // search for the image file and ignore the rest
@@ -53,6 +62,24 @@ void mesh_t::load_mtl(	std::string path,
             else
                 throw std::runtime_error(std::string("Error: no allowed format found for 'map_Kd' in material ") + current_mtl->name);
         }
+		else if (sscanf(line.c_str(), "map_Ks %[^\n]", str0) == 1)
+		{
+			// search for the image file and ignore the rest
+			std::string mapfile;
+			if (find_filename_from_suffixes(str0, ALLOWED_TEXTURE_SUFFIXES, mapfile))
+				current_mtl->map_Ks = path + mapfile;
+			else
+				throw std::runtime_error(std::string("Error: no allowed format found for 'map_Ks' in material ") + current_mtl->name);
+		}
+		else if (sscanf(line.c_str(), "map_d %[^\n]", str0) == 1)
+		{
+			// search for the image file and ignore the rest
+			std::string mapfile;
+			if (find_filename_from_suffixes(str0, ALLOWED_TEXTURE_SUFFIXES, mapfile))
+				current_mtl->map_d = path + mapfile;
+			else
+				throw std::runtime_error(std::string("Error: no allowed format found for 'map_d' in material ") + current_mtl->name);
+		}
         else if (sscanf(line.c_str(), "map_bump %[^\n]", str0) == 1)
         {
             // search for the image file and ignore the rest

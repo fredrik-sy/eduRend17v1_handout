@@ -36,6 +36,7 @@ private:
 	ID3D11RenderTargetView* m_pRenderTargetView;
 	ID3D11Texture2D* m_pDepthStencilResource;
 	ID3D11VertexShader* m_pVertexShader;
+	ID3D11SamplerState* m_pSamplerState;
 	IDXGISwapChain* m_pSwapChain;
 	//ID3D11Buffer* m_pMatrixBuffer;
 

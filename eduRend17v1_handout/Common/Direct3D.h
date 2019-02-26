@@ -35,6 +35,12 @@ void CreateRasterizerState(ID3D11Device* pDevice, ID3D11RasterizerState** ppRast
 
 
 //
+//   PURPOSE: Creates a sampler-state object that encapsulates sampling information for a texture.
+//
+void CreateSamplerState(ID3D11Device* pDevice, ID3D11SamplerState** ppSamplerState);
+
+
+//
 //   PURPOSE: Creates a buffer for vertex data.
 //
 void CreateVertexShader(ID3D11Device* pDevice, ID3DBlob* pCode, ID3D11VertexShader** ppVertexShader);

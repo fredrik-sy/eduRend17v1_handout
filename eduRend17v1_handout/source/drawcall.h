@@ -32,13 +32,27 @@ struct material_t
     vec3f Ka = {0,0.5,0}, Kd = {0,0.5,0}, Ks = {1,1,1};
     
 	std::string name;		// Material name
+	std::string map_Ka;		// Texture file path
 	std::string map_Kd;		// Texture file path
+	std::string map_Ks;		// Texture file path
+	std::string map_d;		// Texture file path
 	std::string map_bump;	// Texture file path
 
 	// Device texture pointers
-	ID3D11ShaderResourceView*	map_Kd_TexSRV	= nullptr;
-	ID3D11Resource*				map_Kd_Tex		= nullptr;
-	// other map types here ...
+	ID3D11ShaderResourceView*	map_Ka_TexSRV = nullptr;
+	ID3D11Resource*				map_Ka_Tex = nullptr;
+
+	ID3D11ShaderResourceView*	map_Kd_TexSRV = nullptr;
+	ID3D11Resource*				map_Kd_Tex = nullptr;
+
+	ID3D11ShaderResourceView*	map_Ks_TexSRV = nullptr;
+	ID3D11Resource*				map_Ks_Tex = nullptr;
+
+	ID3D11ShaderResourceView*	map_d_TexSRV = nullptr;
+	ID3D11Resource*				map_d_Tex = nullptr;
+
+	ID3D11ShaderResourceView*	map_bump_TexSRV = nullptr;
+	ID3D11Resource*				map_bump_Tex = nullptr;
 };
 
 static material_t default_mtl = material_t();

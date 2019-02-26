@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Models/GameObject.h"
+#include "Common/OBJLoader.h"
 #include <DirectXMath.h>
 
 using namespace DirectX;

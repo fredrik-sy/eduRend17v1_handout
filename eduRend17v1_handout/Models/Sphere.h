@@ -1,6 +1,8 @@
 #pragma once
 
 #include "GameObject.h"
+#include "Common/OBJLoader.h"
+#include <DirectXMath.h>
 
 class Sphere : public GameObject
 {

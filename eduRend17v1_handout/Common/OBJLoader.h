@@ -1,5 +1,9 @@
 #pragma once
 
+#include <d3d11.h>
+#include "source/drawcall.h"
+#include "source/mesh.h"
+
 
 struct index_range_t
 {
@@ -13,13 +17,9 @@ struct index_range_t
 class OBJLoader
 {
 public:
-	OBJLoader();
-	virtual ~OBJLoader();
-	void ReadData(const char* pFilename, std::vector<unsigned int>* pIndices, std::vector<index_range_t>* pIndexRanges);
+	static void ReadData(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, mesh_t* pMesh, std::vector<unsigned int>* pIndices, std::vector<index_range_t>* pIndexRanges, std::vector<material_t>* pMaterials);
 
 private:
-	void ParseOBJ();
-	void ParseMTL();
 
 };
 
