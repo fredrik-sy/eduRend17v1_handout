@@ -133,9 +133,11 @@
     <ClCompile Include="Common\OBJLoader.cpp" />
     <ClCompile Include="Common\Timer.cpp" />
     <ClCompile Include="Common\Window.cpp" />
+    <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Models\Sphere.cpp" />
     <ClCompile Include="Models\Sponza.cpp" />
+    <ClCompile Include="Models\WoodDoll.cpp" />
     <ClCompile Include="source\InputHandler.cpp" />
     <ClCompile Include="source\mesh.cpp" />
     <ClCompile Include="source\vec\mat.cpp" />
@@ -154,6 +156,7 @@
     <ClInclude Include="Models\GameObject.h" />
     <ClInclude Include="Models\Sphere.h" />
     <ClInclude Include="Models\Sponza.h" />
+    <ClInclude Include="Models\WoodDoll.h" />
     <ClInclude Include="source\drawcall.h" />
     <ClInclude Include="source\InputHandler.h" />
     <ClInclude Include="source\mesh.h" />

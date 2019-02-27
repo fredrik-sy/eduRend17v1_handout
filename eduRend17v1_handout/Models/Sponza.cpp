@@ -3,32 +3,16 @@
 #include "source/mesh.h"
 
 Sponza::Sponza(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext)
+	: GameObject("../assets/crytek-sponza/sponza.obj", pDevice, pDeviceContext)
 {
-	mesh_t Mesh;
-	Mesh.load_obj("../assets/crytek-sponza/sponza.obj");
-
-	std::vector<unsigned int> Indices;
-	
-	OBJLoader::ReadData(pDevice, pDeviceContext, &Mesh, &Indices, &m_IndexRanges, &m_Materials);
-
-	CreateVertexBuffer(pDevice, &Mesh.vertices, Mesh.vertices.size() * sizeof(vertex_t), &m_pVertexBuffer);
-	CreateIndexBuffer(pDevice, &Indices, &m_pIndexBuffer);
-	CreateConstantBuffer(pDevice, sizeof(MaterialBuffer), &m_pMaterialBuffer);
-
-	m_Transformation = mat4f::translation(0.0f, -5.0f, 0.0f)
-		* mat4f::rotation(fPI / 2, 0.0f, 1.0f, 0.0f)
-		* mat4f::scaling(0.05f);
 }
 
 
 Sponza::~Sponza()
 {
-	SAFE_RELEASE(m_pVertexBuffer);
-	SAFE_RELEASE(m_pIndexBuffer);
-	SAFE_RELEASE(m_pMaterialBuffer);
 }
 
-void Sponza::Update()
+void Sponza::Update(float DeltaTime)
 {
 }
 

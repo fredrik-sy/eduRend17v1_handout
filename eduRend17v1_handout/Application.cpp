@@ -5,6 +5,8 @@
 #include "Models/Sponza.h"
 #include "Common/Timer.h"
 #include "Buffers/MaterialBuffer.h"
+#include "Models/WoodDoll.h"
+
 
 Application::Application(HINSTANCE hInstance, WNDPROC lpfnWndProc)
 	: Window("eduRend", "eduRend", hInstance, lpfnWndProc)
@@ -33,7 +35,8 @@ Application::Application(HINSTANCE hInstance, WNDPROC lpfnWndProc)
 	CreatePixelShader(m_pDevice, pCode, &m_pPixelShader);
 	SAFE_RELEASE(pCode);
 
-	m_InputHandler.Initialize(hInstance, GetWindowHandle(), GetClientWidth(), GetClientHeight());
+	while (!m_InputHandler.Initialize(hInstance, GetWindowHandle(), GetClientWidth(), GetClientHeight()))
+		Sleep(1000);
 }
 
 
@@ -128,6 +131,7 @@ void Application::LoadContent()
 {
 	m_GameObjects.push_back(new Sponza(m_pDevice, m_pDeviceContext));
 	m_GameObjects.push_back(new Sphere(m_pDevice, m_pDeviceContext));
+	m_GameObjects.push_back(new WoodDoll(m_pDevice, m_pDeviceContext));
 	m_Camera.SetAspectRatio(GetAspectRatio());
 	m_Camera.SetPosition(0.0f, 0.0f, 5.0f);
 	m_PositionData.LightPosition = vec3f(0.0f, 5.0f, 5.0f);
@@ -150,7 +154,7 @@ void Application::Update(float DeltaTime)
 	if (m_InputHandler.IsKeyPressed(Keys::A)) m_Camera.Move(-10.0f * DeltaTime, 0.0f, 0.0f);
 
 	for (GameObject* pGameObject : m_GameObjects)
-		pGameObject->Update();
+		pGameObject->Update(DeltaTime);
 
 	m_MatrixData.Projection = m_Camera.GetProjectionMatrixA();
 	m_MatrixData.WorldToView = m_Camera.GetWorldToViewMatrixA();
@@ -161,8 +165,8 @@ void Application::Update(float DeltaTime)
 void Application::Render(float DeltaTime)
 {
 	// Clear render view and depth-stencil resource.
-	static const FLOAT rgba[4] = { 0, 0, 0, 1 };				// Black color.
-	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, rgba);
+	static const FLOAT RGBA[4] = { 0, 0, 0, 1 };				// Black color.
+	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, RGBA);
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);
 
 	// Set shaders to the device.
@@ -178,7 +182,7 @@ void Application::Render(float DeltaTime)
 	// Set buffers used by the pipeline stage.
 	m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pMatrixBuffer);
 	m_pDeviceContext->PSSetConstantBuffers(1, 1, &m_pPositionBuffer);
-	
+
 	MapUpdateAndUnmapSubresource(m_pDeviceContext, m_pPositionBuffer, &m_PositionData, sizeof(PositionBuffer));
 
 	for (GameObject* pGameObject : m_GameObjects)

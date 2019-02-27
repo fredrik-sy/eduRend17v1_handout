@@ -239,6 +239,7 @@ void CreateIndexBuffer(ID3D11Device* pDevice, std::vector<unsigned int>* pIndice
 		throw std::exception("CreateBuffer Failed");
 }
 
+
 void MapUpdateAndUnmapSubresource(ID3D11DeviceContext* pDeviceContext, ID3D11Resource* pResource, void* pData, UINT Size)
 {
 	D3D11_MAPPED_SUBRESOURCE Subresource;

@@ -38,24 +38,21 @@ private:
 	ID3D11VertexShader* m_pVertexShader;
 	ID3D11SamplerState* m_pSamplerState;
 	IDXGISwapChain* m_pSwapChain;
-	
+
+	//
+	// Buffers
+	//
+	ID3D11Buffer* m_pMatrixBuffer;
+	ID3D11Buffer* m_pPositionBuffer;
+	MatrixBuffer m_MatrixData;
+	PositionBuffer m_PositionData;
+
 	Camera m_Camera;
 	InputHandler m_InputHandler;
 	vector<GameObject*> m_GameObjects;
 
 	D3D11_VIEWPORT CreateSingleViewport();
 	void OnResize();
-
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-public:
-private:
-	ID3D11Buffer* m_pMatrixBuffer;
-	ID3D11Buffer* m_pPositionBuffer;
-	MatrixBuffer m_MatrixData;
-	PositionBuffer m_PositionData;
 
 };
 

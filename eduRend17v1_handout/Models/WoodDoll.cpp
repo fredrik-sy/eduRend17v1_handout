@@ -1,25 +1,27 @@
-#include "Sphere.h"
+#include "WoodDoll.h"
+
 #include "Common/Direct3D.h"
 #include "source/mesh.h"
+#include "Common/OBJLoader.h"
 
-
-Sphere::Sphere(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext)
-	: GameObject("../assets/sphere/sphere.obj", pDevice, pDeviceContext)
+WoodDoll::WoodDoll(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext)
+	: GameObject("../assets/wooddoll/wooddoll.obj", pDevice, pDeviceContext)
 {
 }
 
 
-Sphere::~Sphere()
+WoodDoll::~WoodDoll()
 {
 }
 
 
-void Sphere::Update(float DeltaTime)
+void WoodDoll::Update(float DeltaTime)
 {
+	m_AngleY += (fPI / 2) * DeltaTime;
 }
 
 
-void Sphere::Render(ID3D11DeviceContext * pDeviceContext)
+void WoodDoll::Render(ID3D11DeviceContext * pDeviceContext)
 {
 	UINT32 Strides = sizeof(vertex_t);
 	UINT32 Offsets = 0;
@@ -34,7 +36,7 @@ void Sphere::Render(ID3D11DeviceContext * pDeviceContext)
 		m_MaterialData.Ka = Material.Ka;
 		m_MaterialData.Kd = Material.Kd;
 		m_MaterialData.Ks = Material.Ks;
-		m_MaterialData.Shininess = 10.0;
+		m_MaterialData.Shininess = 10.0f;
 		MapUpdateAndUnmapSubresource(pDeviceContext, m_pMaterialBuffer, &m_MaterialData, sizeof(MaterialBuffer));
 
 		pDeviceContext->PSSetShaderResources(0, 1, &Material.map_Ka_TexSRV);
