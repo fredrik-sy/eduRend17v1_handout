@@ -54,6 +54,8 @@ Application::~Application()
 	SAFE_RELEASE(m_pRasterizerState);
 	SAFE_RELEASE(m_pSamplerState);
 	SAFE_RELEASE(m_pMatrixBuffer);
+	SAFE_RELEASE(m_pPositionBuffer);
+	SAFE_RELEASE(m_pPhongBuffer);
 
 	for (GameObject* pGameObject : m_GameObjects)
 		SAFE_DELETE(pGameObject);
