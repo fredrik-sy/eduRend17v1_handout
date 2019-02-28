@@ -35,6 +35,7 @@ Application::Application(HINSTANCE hInstance, WNDPROC lpfnWndProc)
 	CreatePixelShader(m_pDevice, pCode, &m_pPixelShader);
 	SAFE_RELEASE(pCode);
 
+	// Continue initialize until it succeeds, since this will fail if window has no focus.
 	while (!m_InputHandler.Initialize(hInstance, GetWindowHandle(), GetClientWidth(), GetClientHeight()))
 		Sleep(1000);
 }

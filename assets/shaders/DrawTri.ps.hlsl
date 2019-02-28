@@ -1,4 +1,3 @@
-
 Texture2D Texture : register(t0);
 sampler Sampler : register(s0);
 

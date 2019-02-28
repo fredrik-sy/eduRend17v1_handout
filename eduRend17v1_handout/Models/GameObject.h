@@ -11,7 +11,7 @@ class GameObject
 {
 public:
 	GameObject();
-	GameObject(const char* Filename, ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, ID3D11Buffer* pPhongBuffer);
+	GameObject(const char* pFilename, ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, ID3D11Buffer* pPhongBuffer);
 	virtual ~GameObject();
 	virtual void Update(float DeltaTime) = 0;
 	virtual void Render(ID3D11DeviceContext* pDeviceContext) = 0;

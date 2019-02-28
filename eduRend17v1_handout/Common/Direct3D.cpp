@@ -135,7 +135,7 @@ void CreateSamplerState(ID3D11Device * pDevice, ID3D11SamplerState ** ppSamplerS
 	SamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 	SamplerDesc.MipLODBias = 0.0f;														// Offset from the calculated mipmap level.
 	SamplerDesc.MaxAnisotropy = 1;														// Clamping value used if D3D11_FILTER_ANISOTROPIC or D3D11_FILTER_COMPARISON_ANISOTROPIC is specified in Filter.
-	SamplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;								// Compares sampled data against existing sampled data.
+	SamplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;								// Compares sampled data against existing sampled data.
 	SamplerDesc.BorderColor[0] = 1.0f;
 	SamplerDesc.BorderColor[1] = 1.0f;
 	SamplerDesc.BorderColor[2] = 1.0f;

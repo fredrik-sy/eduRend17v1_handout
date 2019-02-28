@@ -7,10 +7,10 @@ GameObject::GameObject()
 }
 
 
-GameObject::GameObject(const char* Filename, ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, ID3D11Buffer* pPhongBuffer)
+GameObject::GameObject(const char* pFilename, ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, ID3D11Buffer* pPhongBuffer)
 {
 	mesh_t Mesh;
-	Mesh.load_obj(Filename);
+	Mesh.load_obj(pFilename);
 
 	std::vector<unsigned int> Indices;
 
