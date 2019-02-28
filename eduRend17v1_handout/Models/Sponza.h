@@ -8,7 +8,7 @@ using namespace DirectX;
 class Sponza : public GameObject
 {
 public:
-	Sponza(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext);
+	Sponza(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, ID3D11Buffer* pPhongBuffer);
 	virtual ~Sponza();
 
 	virtual void Update(float DeltaTime) override;

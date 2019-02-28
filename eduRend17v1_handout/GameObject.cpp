@@ -7,7 +7,7 @@ GameObject::GameObject()
 }
 
 
-GameObject::GameObject(const char* Filename, ID3D11Device * pDevice, ID3D11DeviceContext * pDeviceContext)
+GameObject::GameObject(const char* Filename, ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, ID3D11Buffer* pPhongBuffer)
 {
 	mesh_t Mesh;
 	Mesh.load_obj(Filename);
@@ -18,7 +18,7 @@ GameObject::GameObject(const char* Filename, ID3D11Device * pDevice, ID3D11Devic
 
 	CreateVertexBuffer(pDevice, &Mesh.vertices, Mesh.vertices.size() * sizeof(vertex_t), &m_pVertexBuffer);
 	CreateIndexBuffer(pDevice, &Indices, &m_pIndexBuffer);
-	CreateConstantBuffer(pDevice, sizeof(MaterialBuffer), &m_pMaterialBuffer);
+	m_pPhongBuffer = pPhongBuffer;
 }
 
 
@@ -26,5 +26,5 @@ GameObject::~GameObject()
 {
 	SAFE_RELEASE(m_pVertexBuffer);
 	SAFE_RELEASE(m_pIndexBuffer);
-	SAFE_RELEASE(m_pMaterialBuffer);
+	SAFE_RELEASE(m_pPhongBuffer);
 }

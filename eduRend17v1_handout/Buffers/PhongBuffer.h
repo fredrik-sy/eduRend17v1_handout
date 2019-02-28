@@ -5,7 +5,7 @@
 using namespace linalg;
 
 
-struct MaterialBuffer
+struct PhongBuffer
 {
 	vec3f Ka;					// Ambient reflection constant
 	float Padding3;

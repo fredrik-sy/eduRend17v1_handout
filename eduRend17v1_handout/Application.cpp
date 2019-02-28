@@ -4,7 +4,7 @@
 #include "Models/Sphere.h"
 #include "Models/Sponza.h"
 #include "Common/Timer.h"
-#include "Buffers/MaterialBuffer.h"
+#include "Buffers/PhongBuffer.h"
 #include "Models/WoodDoll.h"
 
 
@@ -118,6 +118,7 @@ void Application::Initialize()
 {
 	CreateConstantBuffer(m_pDevice, sizeof(MatrixBuffer), &m_pMatrixBuffer);
 	CreateConstantBuffer(m_pDevice, sizeof(PositionBuffer), &m_pPositionBuffer);
+	CreateConstantBuffer(m_pDevice, sizeof(PhongBuffer), &m_pPhongBuffer);
 
 	m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);		// How the pipeline interprets vertex data that is bound to the input-assembler stage. Different topology can be used for different vertex data.
 	m_pDeviceContext->IASetInputLayout(m_pInputLayout);										// Bind to input-assembler stage.
@@ -129,9 +130,9 @@ void Application::Initialize()
 
 void Application::LoadContent()
 {
-	m_GameObjects.push_back(new Sponza(m_pDevice, m_pDeviceContext));
-	m_GameObjects.push_back(new Sphere(m_pDevice, m_pDeviceContext));
-	m_GameObjects.push_back(new WoodDoll(m_pDevice, m_pDeviceContext));
+	m_GameObjects.push_back(new Sponza(m_pDevice, m_pDeviceContext, m_pPhongBuffer));
+	m_GameObjects.push_back(new Sphere(m_pDevice, m_pDeviceContext, m_pPhongBuffer));
+	m_GameObjects.push_back(new WoodDoll(m_pDevice, m_pDeviceContext, m_pPhongBuffer));
 	m_Camera.SetAspectRatio(GetAspectRatio());
 	m_Camera.SetPosition(0.0f, 0.0f, 5.0f);
 	m_PositionData.LightPosition = vec3f(0.0f, 5.0f, 5.0f);
@@ -182,6 +183,7 @@ void Application::Render(float DeltaTime)
 	// Set buffers used by the pipeline stage.
 	m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pMatrixBuffer);
 	m_pDeviceContext->PSSetConstantBuffers(1, 1, &m_pPositionBuffer);
+	m_pDeviceContext->PSSetConstantBuffers(2, 1, &m_pPhongBuffer);
 
 	MapUpdateAndUnmapSubresource(m_pDeviceContext, m_pPositionBuffer, &m_PositionData, sizeof(PositionBuffer));
 

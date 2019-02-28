@@ -124,9 +124,6 @@
     <ClInclude Include="Common\Window.h">
       <Filter>Header Files\Common</Filter>
     </ClInclude>
-    <ClInclude Include="Buffers\MaterialBuffer.h">
-      <Filter>Header Files\Buffers</Filter>
-    </ClInclude>
     <ClInclude Include="Buffers\MatrixBuffer.h">
       <Filter>Header Files\Buffers</Filter>
     </ClInclude>
@@ -150,6 +147,9 @@
     </ClInclude>
     <ClInclude Include="Models\WoodDoll.h">
       <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Buffers\PhongBuffer.h">
+      <Filter>Header Files\Buffers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

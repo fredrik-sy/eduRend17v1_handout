@@ -11,7 +11,7 @@ cbuffer PositionBuffer : register(b1)
     float Padding2;
 };
 
-cbuffer MaterialBufferA : register(b2)
+cbuffer PhongBuffer : register(b2)
 {
     float3 Ka;
     float Padding3;
@@ -47,8 +47,11 @@ float4 PS_main(PSIn input) : SV_Target
     
     float4 TextureColor = Texture.Sample(Sampler, input.TexCoord);
     
-    if (TextureColor.x == 0 && TextureColor.y == 0 && TextureColor.z == 0 && TextureColor.w == 0)
-        return float4(Ka + Diffuse + Specular, 1) * float4(input.Normal*0.5 + 0.5, 1);
-
+    if (TextureColor.x == 0 &&
+        TextureColor.y == 0 &&
+        TextureColor.z == 0 &&
+        TextureColor.w == 0)
+        return float4(Ka + Diffuse + Specular, 1);
+    
     return float4(Ka + Diffuse + Specular, 1) * TextureColor;
 }

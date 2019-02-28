@@ -44,6 +44,7 @@ private:
 	//
 	ID3D11Buffer* m_pMatrixBuffer;
 	ID3D11Buffer* m_pPositionBuffer;
+	ID3D11Buffer* m_pPhongBuffer;
 	MatrixBuffer m_MatrixData;
 	PositionBuffer m_PositionData;
 
