@@ -18,6 +18,9 @@ WoodDoll::~WoodDoll()
 void WoodDoll::Update(float DeltaTime)
 {
 	m_AngleY += (fPI / 2) * DeltaTime;
+
+	if (m_AngleY / (2 * fPI) >= 1)
+		m_AngleY -= (2 * fPI);
 }
 
 
