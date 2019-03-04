@@ -5,6 +5,7 @@
 #include "Common/Camera.h"
 #include "Common/Window.h"
 #include "Models/GameObject.h"
+#include "Models/PointLight.h"
 #include "Buffers/MatrixBuffer.h"
 #include "Buffers/PositionBuffer.h"
 #include "source/InputHandler.h"
@@ -49,6 +50,7 @@ private:
 	PositionBuffer m_PositionData;
 
 	Camera m_Camera;
+	PointLight* m_pPointLight;
 	InputHandler m_InputHandler;
 	vector<GameObject*> m_GameObjects;
 

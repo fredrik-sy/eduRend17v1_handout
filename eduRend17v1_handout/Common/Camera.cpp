@@ -26,18 +26,18 @@ void Camera::Rotate(float Pitch, float Yaw, float Roll)
 
 void Camera::Move(float VelocityX, float VelocityY, float VelocityZ)
 {
-	vec4f Velocity = GetViewToWorldMatrixA() * vec4f(VelocityX, VelocityY, VelocityZ, 0.0f);
+	vec4f Velocity = GetViewToWorldMatrix() * vec4f(VelocityX, VelocityY, VelocityZ, 0.0f);
 	m_Position += Velocity.xyz();
 }
 
 
-mat4f Camera::GetViewToWorldMatrixA()
+mat4f Camera::GetViewToWorldMatrix()
 {
 	return mat4f::translation(m_Position) * mat4f::rotation(0, m_Orientation.x, m_Orientation.y);
 }
 
 
-mat4f Camera::GetWorldToViewMatrixA()
+mat4f Camera::GetWorldToViewMatrix()
 {
 	mat4f rotation = mat4f::rotation(0, m_Orientation.x, m_Orientation.y);
 	rotation.transpose();
@@ -45,7 +45,7 @@ mat4f Camera::GetWorldToViewMatrixA()
 }
 
 
-mat4f Camera::GetProjectionMatrixA()
+mat4f Camera::GetProjectionMatrix()
 {
 	return mat4f::projection(m_FOV, m_AspectRatio, m_zNear, m_zFar);
 }

@@ -128,7 +128,7 @@ void CreateRasterizerState(ID3D11Device* pDevice, ID3D11RasterizerState** ppRast
 void CreateSamplerState(ID3D11Device * pDevice, ID3D11SamplerState ** ppSamplerState)
 {
 	D3D11_SAMPLER_DESC SamplerDesc;
-	SamplerDesc.Filter = D3D11_FILTER_COMPARISON_MIN_LINEAR_MAG_POINT_MIP_LINEAR;		// Filtering method to use when sampling a texture.
+	SamplerDesc.Filter = D3D11_FILTER_COMPARISON_ANISOTROPIC;							// Filtering method to use when sampling a texture.
 	SamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;									// Method to use for resolving a texture coordinate that is outside the 0 to 1 range.
 	SamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 	SamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;

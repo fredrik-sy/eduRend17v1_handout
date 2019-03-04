@@ -15,9 +15,9 @@ public:
 
 	void Move(float VelocityX, float VelocityY, float VelocityZ);
 	void Rotate(float Pitch, float Yaw, float Roll);
-	mat4f GetViewToWorldMatrixA();
-	mat4f GetWorldToViewMatrixA();
-	mat4f GetProjectionMatrixA();
+	mat4f GetViewToWorldMatrix();
+	mat4f GetWorldToViewMatrix();
+	mat4f GetProjectionMatrix();
 	inline vec3f GetPosition();
 	inline void SetAspectRatio(float AspectRatio);
 	inline void SetPosition(float x, float y, float z);

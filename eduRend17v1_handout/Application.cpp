@@ -58,6 +58,8 @@ Application::~Application()
 	SAFE_RELEASE(m_pPositionBuffer);
 	SAFE_RELEASE(m_pPhongBuffer);
 
+	SAFE_DELETE(m_pPointLight);
+
 	for (GameObject* pGameObject : m_GameObjects)
 		SAFE_DELETE(pGameObject);
 }
@@ -123,6 +125,8 @@ void Application::Initialize()
 	CreateConstantBuffer(m_pDevice, sizeof(PositionBuffer), &m_pPositionBuffer);
 	CreateConstantBuffer(m_pDevice, sizeof(PhongBuffer), &m_pPhongBuffer);
 
+	m_pPointLight = new PointLight(m_pDevice);
+
 	m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);		// How the pipeline interprets vertex data that is bound to the input-assembler stage. Different topology can be used for different vertex data.
 	m_pDeviceContext->IASetInputLayout(m_pInputLayout);										// Bind to input-assembler stage.
 	m_pDeviceContext->RSSetState(m_pRasterizerState);										// Set the rasterizer state for the rasterizer stage of the pipeline.
@@ -139,6 +143,8 @@ void Application::LoadContent()
 	m_Camera.SetAspectRatio(GetAspectRatio());
 	m_Camera.SetPosition(0.0f, 0.0f, 5.0f);
 	m_PositionData.LightPosition = vec3f(0.0f, 5.0f, -20.0f);
+
+	m_pPointLight->SetPosition(0.0f, 5.0f, 20.0f);
 }
 
 
@@ -157,11 +163,13 @@ void Application::Update(float DeltaTime)
 	if (m_InputHandler.IsKeyPressed(Keys::D)) m_Camera.Move(10.0f * DeltaTime, 0.0f, 0.0f);
 	if (m_InputHandler.IsKeyPressed(Keys::A)) m_Camera.Move(-10.0f * DeltaTime, 0.0f, 0.0f);
 
+	m_pPointLight->Update(DeltaTime);
+
 	for (GameObject* pGameObject : m_GameObjects)
 		pGameObject->Update(DeltaTime);
 
-	m_MatrixData.Projection = m_Camera.GetProjectionMatrixA();
-	m_MatrixData.WorldToView = m_Camera.GetWorldToViewMatrixA();
+	m_MatrixData.Projection = m_Camera.GetProjectionMatrix();
+	m_MatrixData.WorldToView = m_Camera.GetWorldToViewMatrix();
 	m_PositionData.CameraPosition = m_Camera.GetPosition();
 }
 
