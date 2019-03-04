@@ -30,12 +30,17 @@ void Sphere::Render(ID3D11DeviceContext * pDeviceContext)
 	{
 		const material_t& Material = m_Materials[IndexRange.mtl_index];
 
-		m_PhongData.Ka = Material.Ka;
-		m_PhongData.Kd = Material.Kd;
-		m_PhongData.Ks = Material.Ks;
+		m_PhongData.KaConstant = Material.KaConstant;
+		m_PhongData.KdConstant = Material.KdConstant;
+		m_PhongData.KsConstant = Material.KsConstant;
 		m_PhongData.Shininess = 10.0;
 		MapUpdateAndUnmapSubresource(pDeviceContext, m_pPhongBuffer, &m_PhongData, sizeof(PhongBuffer));
 
+		pDeviceContext->PSSetShaderResources(0, 1, &Material.map_Ka_TexSRV);
+		pDeviceContext->PSSetShaderResources(1, 1, &Material.map_Kd_TexSRV);
+		pDeviceContext->PSSetShaderResources(2, 1, &Material.map_Ks_TexSRV);
+		pDeviceContext->PSSetShaderResources(3, 1, &Material.map_d_TexSRV);
+		pDeviceContext->PSSetShaderResources(4, 1, &Material.map_bump_TexSRV);
 		pDeviceContext->DrawIndexed(IndexRange.size, IndexRange.start, 0);
 	}
 }

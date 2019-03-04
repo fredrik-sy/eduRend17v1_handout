@@ -1,6 +1,6 @@
 #include "Models/GameObject.h"
 #include "Common/Direct3D.h"
-
+#include "Common/Direct3DMath.h"
 
 GameObject::GameObject()
 {
@@ -19,6 +19,7 @@ GameObject::GameObject(const char* pFilename, ID3D11Device* pDevice, ID3D11Devic
 	CreateVertexBuffer(pDevice, &Mesh.vertices, Mesh.vertices.size() * sizeof(vertex_t), &m_pVertexBuffer);
 	CreateIndexBuffer(pDevice, &Indices, &m_pIndexBuffer);
 	m_pPhongBuffer = pPhongBuffer;
+
 }
 
 

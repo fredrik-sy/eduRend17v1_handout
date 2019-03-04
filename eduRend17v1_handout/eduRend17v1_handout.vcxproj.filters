@@ -80,10 +80,16 @@
     <ClCompile Include="Common\OBJLoader.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
-    <ClCompile Include="GameObject.cpp">
+    <ClCompile Include="Models\WoodDoll.cpp">
       <Filter>Source Files\Models</Filter>
     </ClCompile>
-    <ClCompile Include="Models\WoodDoll.cpp">
+    <ClCompile Include="Common\Direct3DMath.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Models\GameObject.cpp">
+      <Filter>Source Files\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Models\PointLight.cpp">
       <Filter>Source Files\Models</Filter>
     </ClCompile>
   </ItemGroup>
@@ -150,6 +156,12 @@
     </ClInclude>
     <ClInclude Include="Buffers\PhongBuffer.h">
       <Filter>Header Files\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Direct3DMath.h">
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Models\PointLight.h">
+      <Filter>Header Files\Models</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -100,15 +100,15 @@ void mesh_t::load_mtl(	std::string path,
         }
         else if (sscanf(line.c_str(), "Ka %f %f %f", &a, &b, &c) == 3)
         {
-            current_mtl->Ka = vec3f(a, b, c);
+            current_mtl->KaConstant = vec3f(a, b, c);
         }
         else if (sscanf(line.c_str(), "Kd %f %f %f", &a, &b, &c) == 3)
         {
-            current_mtl->Kd = vec3f(a, b, c);
+            current_mtl->KdConstant = vec3f(a, b, c);
         }
         else if (sscanf(line.c_str(), "Ks %f %f %f", &a, &b, &c) == 3)
         {
-            current_mtl->Ks = vec3f(a, b, c);
+            current_mtl->KsConstant = vec3f(a, b, c);
         }
     }
     in.close();

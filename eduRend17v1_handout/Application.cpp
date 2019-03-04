@@ -138,7 +138,7 @@ void Application::LoadContent()
 	m_GameObjects.push_back(new WoodDoll(m_pDevice, m_pDeviceContext, m_pPhongBuffer));
 	m_Camera.SetAspectRatio(GetAspectRatio());
 	m_Camera.SetPosition(0.0f, 0.0f, 5.0f);
-	m_PositionData.LightPosition = vec3f(0.0f, 5.0f, 5.0f);
+	m_PositionData.LightPosition = vec3f(0.0f, 5.0f, -20.0f);
 }
 
 

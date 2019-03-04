@@ -29,7 +29,7 @@ struct vertex_t
 struct material_t
 {
 	//  Phong color components: ambient, diffuse & specular
-    vec3f Ka = {0,0.5,0}, Kd = {0,0.5,0}, Ks = {1,1,1};
+    vec3f KaConstant = {0,0.5,0}, KdConstant = {0,0.5,0}, KsConstant = {1,1,1};
     
 	std::string name;		// Material name
 	std::string map_Ka;		// Texture file path

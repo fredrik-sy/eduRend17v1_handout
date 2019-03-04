@@ -10,10 +10,9 @@ void CreateDeviceAndSwapChain(HWND OutputWindow, ID3D11Device** ppDevice, ID3D11
 	D3D_FEATURE_LEVEL FeatureLevels[] = { D3D_FEATURE_LEVEL_11_0 };
 	D3D_DRIVER_TYPE DriverType = D3D_DRIVER_TYPE_HARDWARE;
 
-#ifdef DEBUG
-	Flags |= D3D11_CREATE_DEVICE_DEBUG;
-	Flags |= D3D11_CREATE_DEVICE_DEBUGGABLE;
-	DriverType = D3D_DRIVER_TYPE_REFERENCE;
+#ifdef _DEBUG
+	//Flags |= D3D11_CREATE_DEVICE_DEBUG;
+	//Flags |= D3D11_CREATE_DEVICE_DEBUGGABLE;
 #endif
 
 	DXGI_SWAP_CHAIN_DESC SwapChainDesc;
@@ -187,7 +186,7 @@ void CompileShader(LPCWSTR pFileName, LPCSTR pEntrypoint, LPCSTR pTarget, ID3DBl
 	UINT Flags1 = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_IEEE_STRICTNESS;
 	ID3DBlob* pErrorMsgs;
 
-#ifdef DEBUG
+#ifdef _DEBUG
 	Flags1 |= D3DCOMPILE_DEBUG;
 #endif
 
