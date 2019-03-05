@@ -125,7 +125,7 @@ void Application::Initialize()
 	CreateConstantBuffer(m_pDevice, sizeof(PositionBuffer), &m_pPositionBuffer);
 	CreateConstantBuffer(m_pDevice, sizeof(PhongBuffer), &m_pPhongBuffer);
 
-	m_pPointLight = new PointLight(m_pDevice);
+	m_pPointLight = new PointLight(m_pDevice, m_pSwapChain, this);
 
 	m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);		// How the pipeline interprets vertex data that is bound to the input-assembler stage. Different topology can be used for different vertex data.
 	m_pDeviceContext->IASetInputLayout(m_pInputLayout);										// Bind to input-assembler stage.

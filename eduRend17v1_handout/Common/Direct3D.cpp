@@ -249,3 +249,15 @@ void MapUpdateAndUnmapSubresource(ID3D11DeviceContext* pDeviceContext, ID3D11Res
 	memcpy(Subresource.pData, pData, Size);
 	pDeviceContext->Unmap(pResource, 0);
 }
+
+
+void CreateShaderResourceView(ID3D11Device* pDevice, ID3D11Resource* pResource, ID3D11ShaderResourceView** ppShaderResourceView)
+{
+	D3D11_SHADER_RESOURCE_VIEW_DESC Desc;
+	Desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	Desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	Desc.Texture2D.MipLevels = 0;
+
+	if (FAILED(pDevice->CreateShaderResourceView(pResource, &Desc, ppShaderResourceView)))
+		throw std::exception("CreateBuffer Failed");
+}

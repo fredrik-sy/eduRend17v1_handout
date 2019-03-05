@@ -83,6 +83,12 @@ void MapUpdateAndUnmapSubresource(ID3D11DeviceContext* pDeviceContext, ID3D11Res
 
 
 //
+//   PURPOSE: Create a shader-resource view for accessing data in a resource.
+//
+void CreateShaderResourceView(ID3D11Device* pDevice, ID3D11Resource* pResource, ID3D11ShaderResourceView** ppShaderResourceView);
+
+
+//
 //   PURPOSE: Creates a buffer for vertex data.
 //
 template<typename T>

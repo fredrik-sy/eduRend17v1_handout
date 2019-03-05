@@ -1,11 +1,12 @@
 #pragma once
 
 #include "Models/GameObject.h"
+#include "Common/Window.h"
 
 class PointLight : public GameObject
 {
 public:
-	PointLight(ID3D11Device* pDevice);
+	PointLight(ID3D11Device* pDevice, IDXGISwapChain* pSwapChain, Window* pWindow);
 	virtual ~PointLight();
 
 	virtual void Update(float DeltaTime) override;

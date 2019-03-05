@@ -1,9 +1,12 @@
 #include "PointLight.h"
 #include "Common/Direct3D.h"
 
-
-PointLight::PointLight(ID3D11Device* pDevice)
+PointLight::PointLight(ID3D11Device* pDevice, IDXGISwapChain* pSwapChain, Window* pWindow)
 {
+	CreateRenderTargetView(pDevice, pSwapChain, &m_pRenderTargetView);
+	CreateDepthStencilResource(pDevice, pWindow->GetClientWidth(), pWindow->GetClientHeight(), &m_pDepthStencilResource);
+	CreateDepthStencilView(pDevice, m_pDepthStencilResource, &m_pDepthStencilView);
+
 }
 
 
