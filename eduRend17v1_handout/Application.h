@@ -31,14 +31,20 @@ private:
 	ID3D11DepthStencilView* m_pDepthStencilView;
 	ID3D11Device* m_pDevice;
 	ID3D11DeviceContext* m_pDeviceContext;
-	ID3D11InputLayout* m_pInputLayout;
-	ID3D11PixelShader* m_pPixelShader;
+	ID3D11InputLayout* m_pInputLayouts[2];			// 0 - Common Shader, 1 - Shadow Mapping Shader.
+	ID3D11PixelShader* m_pPixelShaders[2];
 	ID3D11RasterizerState* m_pRasterizerState;
 	ID3D11RenderTargetView* m_pRenderTargetView;
 	ID3D11Texture2D* m_pDepthStencilResource;
-	ID3D11VertexShader* m_pVertexShader;
+	ID3D11VertexShader* m_pVertexShaders[2];
 	ID3D11SamplerState* m_pSamplerState;
 	IDXGISwapChain* m_pSwapChain;
+
+	//
+	// Shadow Mapping
+	//
+	ID3D11Texture2D* m_pShaderResource;
+	ID3D11ShaderResourceView* m_pShaderResourceView;
 
 	//
 	// Buffers

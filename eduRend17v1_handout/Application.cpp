@@ -17,6 +17,8 @@ Application::Application(HINSTANCE hInstance, WNDPROC lpfnWndProc)
 	CreateDepthStencilView(m_pDevice, m_pDepthStencilResource, &m_pDepthStencilView);
 	CreateRasterizerState(m_pDevice, &m_pRasterizerState);
 	CreateSamplerState(m_pDevice, &m_pSamplerState);
+	CreateShaderResource(m_pDevice, GetClientWidth(), GetClientHeight(), &m_pShaderResource);
+	CreateShaderResourceView(m_pDevice, m_pShaderResource, &m_pShaderResourceView);
 
 	ID3DBlob* pCode;
 	D3D11_INPUT_ELEMENT_DESC InputElementDescs[] = {
@@ -26,14 +28,27 @@ Application::Application(HINSTANCE hInstance, WNDPROC lpfnWndProc)
 		{ "BINORMAL",	0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 36,	D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TEX",		0, DXGI_FORMAT_R32G32_FLOAT,	0, 48,	D3D11_INPUT_PER_VERTEX_DATA, 0 } };
 
+#pragma region [0] Common Shader
 	CompileShader(L"../assets/shaders/DrawTri.vs.hlsl", "VS_main", "vs_5_0", &pCode);
-	CreateVertexShader(m_pDevice, pCode, &m_pVertexShader);
-	CreateInputLayout(m_pDevice, InputElementDescs, ARRAYSIZE(InputElementDescs), pCode, &m_pInputLayout);
+	CreateVertexShader(m_pDevice, pCode, &m_pVertexShaders[0]);
+	CreateInputLayout(m_pDevice, InputElementDescs, ARRAYSIZE(InputElementDescs), pCode, &m_pInputLayouts[0]);
 	SAFE_RELEASE(pCode);
 
 	CompileShader(L"../assets/shaders/DrawTri.ps.hlsl", "PS_main", "ps_5_0", &pCode);
-	CreatePixelShader(m_pDevice, pCode, &m_pPixelShader);
+	CreatePixelShader(m_pDevice, pCode, &m_pPixelShaders[0]);
 	SAFE_RELEASE(pCode);
+#pragma endregion
+
+#pragma region [1] Shadow Mapping Shader
+	CompileShader(L"../assets/shaders/ShadowMapping.vs.hlsl", "VS_main", "vs_5_0", &pCode);
+	CreateVertexShader(m_pDevice, pCode, &m_pVertexShaders[1]);
+	CreateInputLayout(m_pDevice, InputElementDescs, ARRAYSIZE(InputElementDescs), pCode, &m_pInputLayouts[1]);
+	SAFE_RELEASE(pCode);
+
+	CompileShader(L"../assets/shaders/ShadowMapping.ps.hlsl", "PS_main", "ps_5_0", &pCode);
+	CreatePixelShader(m_pDevice, pCode, &m_pPixelShaders[1]);
+	SAFE_RELEASE(pCode);
+#pragma endregion
 
 	// Continue initialize until it succeeds, since this will fail if window has no focus.
 	while (!m_InputHandler.Initialize(hInstance, GetWindowHandle(), GetClientWidth(), GetClientHeight()))
@@ -49,14 +64,20 @@ Application::~Application()
 	SAFE_RELEASE(m_pRenderTargetView);
 	SAFE_RELEASE(m_pDepthStencilView);
 	SAFE_RELEASE(m_pDepthStencilResource);
-	SAFE_RELEASE(m_pVertexShader);
-	SAFE_RELEASE(m_pInputLayout);
-	SAFE_RELEASE(m_pPixelShader);
 	SAFE_RELEASE(m_pRasterizerState);
 	SAFE_RELEASE(m_pSamplerState);
 	SAFE_RELEASE(m_pMatrixBuffer);
 	SAFE_RELEASE(m_pPositionBuffer);
 	SAFE_RELEASE(m_pPhongBuffer);
+
+	for (ID3D11VertexShader* pVertexShader : m_pVertexShaders)
+		SAFE_RELEASE(pVertexShader);
+
+	for (ID3D11PixelShader* pPixelShader : m_pPixelShaders)
+		SAFE_RELEASE(pPixelShader);
+
+	for (ID3D11InputLayout* pInputLayout : m_pInputLayouts)
+		SAFE_RELEASE(pInputLayout);
 
 	SAFE_DELETE(m_pPointLight);
 
@@ -128,7 +149,7 @@ void Application::Initialize()
 	m_pPointLight = new PointLight(m_pDevice, m_pSwapChain, this);
 
 	m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);		// How the pipeline interprets vertex data that is bound to the input-assembler stage. Different topology can be used for different vertex data.
-	m_pDeviceContext->IASetInputLayout(m_pInputLayout);										// Bind to input-assembler stage.
+	m_pDeviceContext->IASetInputLayout(m_pInputLayouts[0]);									// Bind to input-assembler stage.
 	m_pDeviceContext->RSSetState(m_pRasterizerState);										// Set the rasterizer state for the rasterizer stage of the pipeline.
 	m_pDeviceContext->RSSetViewports(1, &CreateSingleViewport());							// Bind viewport to the rasterizer stage of the pipeline.
 	m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, m_pDepthStencilView);		// Bind render targets and the depth-stencil buffer to the output-merger stage.
@@ -182,11 +203,11 @@ void Application::Render(float DeltaTime)
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);
 
 	// Set shaders to the device.
-	m_pDeviceContext->VSSetShader(m_pVertexShader, NULL, 0);
+	m_pDeviceContext->VSSetShader(m_pVertexShaders[0], NULL, 0);
 	m_pDeviceContext->HSSetShader(NULL, NULL, 0);				// Hull shader. Passing NULL disables the shader for this pipeline stage.
 	m_pDeviceContext->DSSetShader(NULL, NULL, 0);				// Domain shader.
 	m_pDeviceContext->GSSetShader(NULL, NULL, 0);				// Geometry shader.
-	m_pDeviceContext->PSSetShader(m_pPixelShader, NULL, 0);
+	m_pDeviceContext->PSSetShader(m_pPixelShaders[0], NULL, 0);
 
 	// Set samplers to the pixel shader pipeline stage.
 	m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerState);

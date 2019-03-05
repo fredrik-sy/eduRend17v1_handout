@@ -250,14 +250,37 @@ void MapUpdateAndUnmapSubresource(ID3D11DeviceContext* pDeviceContext, ID3D11Res
 	pDeviceContext->Unmap(pResource, 0);
 }
 
+void CreateShaderResource(ID3D11Device* pDevice, UINT Width, UINT Height, ID3D11Texture2D** ppShaderResource)
+{
+	D3D11_TEXTURE2D_DESC Desc;
+	Desc.Width = Width;
+	Desc.Height = Height;
+	Desc.MipLevels = 1;																	// 1 for multisampled texture or 0 to generate a full set of subtextures.
+	Desc.ArraySize = 1;																	// Number of textures in the array.
+	Desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	Desc.SampleDesc.Count = 1;
+	Desc.SampleDesc.Quality = 0;
+	Desc.Usage = D3D11_USAGE_DEFAULT;
+	Desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+	Desc.CPUAccessFlags = 0;															// CPU access is not required.
+	Desc.MiscFlags = 0;
 
-void CreateShaderResourceView(ID3D11Device* pDevice, ID3D11Resource* pResource, ID3D11ShaderResourceView** ppShaderResourceView)
+	if (FAILED(pDevice->CreateTexture2D(
+		&Desc,
+		NULL,
+		ppShaderResource)))
+		throw std::exception("CreateTexture2D Failed");
+}
+
+
+void CreateShaderResourceView(ID3D11Device* pDevice, ID3D11Texture2D* pShaderResource, ID3D11ShaderResourceView** ppShaderResourceView)
 {
 	D3D11_SHADER_RESOURCE_VIEW_DESC Desc;
-	Desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	Desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 	Desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	Desc.Texture2D.MipLevels = 0;
+	Desc.Texture2D.MostDetailedMip = 0;
+	Desc.Texture2D.MipLevels = 1;
 
-	if (FAILED(pDevice->CreateShaderResourceView(pResource, &Desc, ppShaderResourceView)))
+	if (FAILED(pDevice->CreateShaderResourceView(pShaderResource, &Desc, ppShaderResourceView)))
 		throw std::exception("CreateBuffer Failed");
 }

@@ -21,9 +21,16 @@ public:
 
 private:
 	ID3D11Texture2D* m_DepthMaps[6];
-	ID3D11RenderTargetView* m_pRenderTargetView;
-	ID3D11DepthStencilView* m_pDepthStencilView;
+
+
+	ID3D11InputLayout* m_pInputLayout;
+	ID3D11VertexShader* m_pVertexShader;
+	ID3D11PixelShader* m_pPixelShader;
+
 	ID3D11Texture2D* m_pDepthStencilResource;
+	ID3D11DepthStencilView* m_pDepthStencilView;
+	ID3D11Texture2D* m_pShaderResource;
+	ID3D11ShaderResourceView* m_pShaderResourceView;
 
 	vec3f m_Position;
 	mat4f m_WorldToViewMatrices[6];

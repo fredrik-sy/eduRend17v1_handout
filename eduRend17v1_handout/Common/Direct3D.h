@@ -83,9 +83,15 @@ void MapUpdateAndUnmapSubresource(ID3D11DeviceContext* pDeviceContext, ID3D11Res
 
 
 //
+//   PURPOSE: Binds a texture as a shader target.
+//
+void CreateShaderResource(ID3D11Device* pDevice, UINT Width, UINT Height, ID3D11Texture2D** ppShaderResource);
+
+
+//
 //   PURPOSE: Create a shader-resource view for accessing data in a resource.
 //
-void CreateShaderResourceView(ID3D11Device* pDevice, ID3D11Resource* pResource, ID3D11ShaderResourceView** ppShaderResourceView);
+void CreateShaderResourceView(ID3D11Device* pDevice, ID3D11Texture2D* pShaderResource, ID3D11ShaderResourceView** ppShaderResourceView);
 
 
 //
