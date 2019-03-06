@@ -171,5 +171,11 @@
     <None Include="..\assets\shaders\DrawTri.ps.hlsl">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="..\assets\shaders\ShadowMapping.ps.hlsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\assets\shaders\ShadowMapping.vs.hlsl">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

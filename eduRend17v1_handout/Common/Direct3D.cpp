@@ -56,14 +56,26 @@ void CreateRenderTargetView(ID3D11Device* pDevice, IDXGISwapChain* pSwapChain, I
 	if (FAILED(pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBuffer)))
 		throw std::exception("GetBuffer Failed");
 
-	HRESULT hr = pDevice->CreateRenderTargetView(
-		pBuffer,
-		NULL,																			// Create a view that can access all of the subresources in mipmap level 0.
-		ppRenderTargetView);
+	try
+	{
+		CreateRenderTargetView(pDevice, pSwapChain, pBuffer, ppRenderTargetView);
+	}
+	catch (const std::exception e)
+	{
+		SAFE_RELEASE(pBuffer);
+		throw;
+	}
 
 	SAFE_RELEASE(pBuffer);
+}
 
-	if (FAILED(hr))
+
+void CreateRenderTargetView(ID3D11Device * pDevice, IDXGISwapChain * pSwapChain, ID3D11Texture2D * pBuffer, ID3D11RenderTargetView ** ppRenderTargetView)
+{
+	if (FAILED(pDevice->CreateRenderTargetView(
+		pBuffer,
+		NULL,																			// Create a view that can access all of the subresources in mipmap level 0.
+		ppRenderTargetView)))
 		throw std::exception("CreateRenderTargetView Failed");
 }
 
@@ -230,7 +242,7 @@ void CreateIndexBuffer(ID3D11Device* pDevice, std::vector<unsigned int>* pIndice
 	Desc.CPUAccessFlags = 0;															// No CPU access is necessary.
 	Desc.MiscFlags = 0;
 	Desc.StructureByteStride = 0;
-	
+
 	D3D11_SUBRESOURCE_DATA InitialData;
 	InitialData.pSysMem = &(*pIndices)[0];
 
