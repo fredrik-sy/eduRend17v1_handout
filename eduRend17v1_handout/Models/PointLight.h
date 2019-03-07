@@ -1,46 +1,47 @@
 #pragma once
 
-#include "Models/GameObject.h"
-#include "Common/Window.h"
+#include "source/vec/mat.h"
 
-class PointLight : public GameObject
+using namespace linalg;
+
+
+typedef enum POINT_LIGHT_FACE
+{
+	POINT_LIGHT_FACE_LEFT			= 1,
+	POINT_LIGHT_FACE_RIGHT			= 2,
+	POINT_LIGHT_FACE_FORWARD		= 3,
+	POINT_LIGHT_FACE_BACKWARD		= 4,
+	POINT_LIGHT_FACE_UP				= 5,
+	POINT_LIGHT_FACE_DOWN			= 6
+};
+
+
+class PointLight
 {
 public:
-	PointLight(ID3D11Device* pDevice, IDXGISwapChain* pSwapChain, Window* pWindow);
+	PointLight();
 	virtual ~PointLight();
 
-	virtual void Update(float DeltaTime) override;
-	virtual void Render(ID3D11DeviceContext * pDeviceContext) override;
-
-	virtual inline mat4f GetTransformationMatrix() override;
-	virtual inline void SetPosition(float x, float y, float z);
-	virtual inline vec3f GetPosition();
-
-	virtual mat4f GetWorldToViewMatrix();
-	virtual mat4f GetProjectionMatrix();
+	void Move(float VelocityX, float VelocityY, float VelocityZ);
+	mat4f GetWorldToViewMatrix(POINT_LIGHT_FACE PointLightFace);
+	mat4f GetProjectionMatrix();
+	inline vec3f GetPosition();
+	inline void SetAspectRatio(float AspectRatio);
+	inline void SetPosition(float x, float y, float z);
 
 private:
-	ID3D11Texture2D* m_DepthMaps[6];
-
-
-	ID3D11InputLayout* m_pInputLayout;
-	ID3D11VertexShader* m_pVertexShader;
-	ID3D11PixelShader* m_pPixelShader;
-
-	ID3D11Texture2D* m_pDepthStencilResource;
-	ID3D11DepthStencilView* m_pDepthStencilView;
-	ID3D11Texture2D* m_pShaderResource;
-	ID3D11ShaderResourceView* m_pShaderResourceView;
-
+	float m_AspectRatio;
+	float m_FOV;
+	float m_zFar;
+	float m_zNear;
 	vec3f m_Position;
-	mat4f m_WorldToViewMatrices[6];
 
 };
 
 
-inline mat4f PointLight::GetTransformationMatrix()
+inline void PointLight::SetAspectRatio(float AspectRatio)
 {
-	return mat4f::translation(m_Position);
+	m_AspectRatio = AspectRatio;
 }
 
 

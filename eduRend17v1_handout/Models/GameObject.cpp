@@ -1,6 +1,5 @@
 #include "Models/GameObject.h"
 #include "Common/Direct3D.h"
-#include "Common/Direct3DMath.h"
 
 GameObject::GameObject()
 {

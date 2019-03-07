@@ -3,6 +3,7 @@ Texture2D KdTexture : register(t1);
 Texture2D KsTexture : register(t2);
 Texture2D dTexture : register(t3);
 Texture2D bumpTexture : register(t4);
+Texture2D ShadowMappingTexture : register(t5);
 sampler Sampler : register(s0);
 
 cbuffer PositionBuffer : register(b1)

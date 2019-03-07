@@ -1,5 +1,4 @@
 #include "OBJLoader.h"
-#include "Common/Direct3DMath.h"
 
 void OBJLoader::ReadData(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, mesh_t* pMesh, std::vector<unsigned int>* pIndices, std::vector<index_range_t>* pIndexRanges, std::vector<material_t>* pMaterials)
 {

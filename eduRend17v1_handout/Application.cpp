@@ -38,12 +38,12 @@ Application::Application(HINSTANCE hInstance, WNDPROC lpfnWndProc)
 	SAFE_RELEASE(pCode);
 #pragma endregion
 
-#pragma region [1] Shadow Mapping Shader
-	CreateShaderResource(m_pDevice, GetClientWidth(), GetClientHeight(), &m_pShaderResource);
-	CreateShaderResourceView(m_pDevice, m_pShaderResource, &m_pShaderResourceView);
+#pragma region [1-6] Shadow Mapping Shader
+	CreateShaderResource(m_pDevice, GetClientWidth(), GetClientHeight(), &m_pShaderResources[0]);
+	CreateShaderResourceView(m_pDevice, m_pShaderResources[0], &m_pShaderResourceViews[0]);
 	CreateDepthStencilResource(m_pDevice, GetClientWidth(), GetClientHeight(), &m_pDepthStencilResources[1]);
 	CreateDepthStencilView(m_pDevice, m_pDepthStencilResources[1], &m_pDepthStencilViews[1]);
-	CreateRenderTargetView(m_pDevice, m_pSwapChain, m_pShaderResource, &m_pRenderTargetViews[1]);
+	CreateRenderTargetView(m_pDevice, m_pSwapChain, m_pShaderResources[0], &m_pRenderTargetViews[1]);
 
 	CompileShader(L"../assets/shaders/ShadowMapping.vs.hlsl", "VS_main", "vs_5_0", &pCode);
 	CreateVertexShader(m_pDevice, pCode, &m_pVertexShaders[1]);
@@ -89,8 +89,6 @@ Application::~Application()
 
 	for (ID3D11InputLayout* pInputLayout : m_pInputLayouts)
 		SAFE_RELEASE(pInputLayout);
-
-	SAFE_DELETE(m_pPointLight);
 
 	for (GameObject* pGameObject : m_GameObjects)
 		SAFE_DELETE(pGameObject);
@@ -157,8 +155,6 @@ void Application::Initialize()
 	CreateConstantBuffer(m_pDevice, sizeof(PositionBuffer), &m_pPositionBuffer);
 	CreateConstantBuffer(m_pDevice, sizeof(PhongBuffer), &m_pPhongBuffer);
 
-	m_pPointLight = new PointLight(m_pDevice, m_pSwapChain, this);
-
 	m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);		// How the pipeline interprets vertex data that is bound to the input-assembler stage. Different topology can be used for different vertex data.
 	m_pDeviceContext->RSSetState(m_pRasterizerState);										// Set the rasterizer state for the rasterizer stage of the pipeline.
 	m_pDeviceContext->RSSetViewports(1, &CreateSingleViewport());							// Bind viewport to the rasterizer stage of the pipeline.
@@ -178,9 +174,10 @@ void Application::LoadContent()
 	m_GameObjects.push_back(new WoodDoll(m_pDevice, m_pDeviceContext, m_pPhongBuffer));
 	m_Camera.SetAspectRatio(GetAspectRatio());
 	m_Camera.SetPosition(0.0f, 0.0f, 5.0f);
-	m_PositionData.LightPosition = vec3f(0.0f, 5.0f, -20.0f);
+	m_PointLight.SetAspectRatio(GetAspectRatio());
+	m_PointLight.SetPosition(0.0f, 5.0f, -20.0f);
 
-	m_pPointLight->SetPosition(0.0f, 5.0f, 20.0f);
+	m_PositionData.LightPosition = vec3f(0.0f, 5.0f, -20.0f);
 }
 
 
@@ -199,8 +196,6 @@ void Application::Update(float DeltaTime)
 	if (m_InputHandler.IsKeyPressed(Keys::D)) m_Camera.Move(10.0f * DeltaTime, 0.0f, 0.0f);
 	if (m_InputHandler.IsKeyPressed(Keys::A)) m_Camera.Move(-10.0f * DeltaTime, 0.0f, 0.0f);
 
-	m_pPointLight->Update(DeltaTime);
-
 	for (GameObject* pGameObject : m_GameObjects)
 		pGameObject->Update(DeltaTime);
 
@@ -212,31 +207,34 @@ void Application::Update(float DeltaTime)
 
 void Application::Render(float DeltaTime)
 {
-	for (int i = 0; i < 2; i++)										// 0 - Common Shader, 1 - Shadow Mapping Shader.
+	RenderShadowMapping(DeltaTime);
+
+	m_pDeviceContext->IASetInputLayout(m_pInputLayouts[0]);											// Bind to input-assembler stage.
+	m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetViews[0], m_pDepthStencilViews[0]);		// Bind render targets and the depth-stencil buffer to the output-merger stage.
+
+	// Clear render view and depth-stencil resource.
+	static const FLOAT RGBA[4] = { 0, 0, 0, 1 };				// Black color.
+	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetViews[0], RGBA);
+	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilViews[0], D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);
+
+	// Set shaders to the device.
+	m_pDeviceContext->VSSetShader(m_pVertexShaders[0], NULL, 0);
+	m_pDeviceContext->HSSetShader(NULL, NULL, 0);				// Hull shader. Passing NULL disables the shader for this pipeline stage.
+	m_pDeviceContext->DSSetShader(NULL, NULL, 0);				// Domain shader.
+	m_pDeviceContext->GSSetShader(NULL, NULL, 0);				// Geometry shader.
+	m_pDeviceContext->PSSetShader(m_pPixelShaders[0], NULL, 0);
+	m_pDeviceContext->PSSetShaderResources(5, 1, &m_pShaderResourceViews[0]);
+
+	m_MatrixData.Projection = m_Camera.GetProjectionMatrix();
+	m_MatrixData.WorldToView = m_Camera.GetWorldToViewMatrix();
+
+	MapUpdateAndUnmapSubresource(m_pDeviceContext, m_pPositionBuffer, &m_PositionData, sizeof(PositionBuffer));
+
+	for (GameObject* pGameObject : m_GameObjects)
 	{
-		m_pDeviceContext->IASetInputLayout(m_pInputLayouts[i]);											// Bind to input-assembler stage.
-		m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetViews[i], m_pDepthStencilViews[i]);		// Bind render targets and the depth-stencil buffer to the output-merger stage.
-
-		// Clear render view and depth-stencil resource.
-		static const FLOAT RGBA[4] = { 0, 0, 0, 1 };				// Black color.
-		m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetViews[i], RGBA);
-		m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilViews[i], D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);
-
-		// Set shaders to the device.
-		m_pDeviceContext->VSSetShader(m_pVertexShaders[i], NULL, 0);
-		m_pDeviceContext->HSSetShader(NULL, NULL, 0);				// Hull shader. Passing NULL disables the shader for this pipeline stage.
-		m_pDeviceContext->DSSetShader(NULL, NULL, 0);				// Domain shader.
-		m_pDeviceContext->GSSetShader(NULL, NULL, 0);				// Geometry shader.
-		m_pDeviceContext->PSSetShader(m_pPixelShaders[i], NULL, 0);
-
-		MapUpdateAndUnmapSubresource(m_pDeviceContext, m_pPositionBuffer, &m_PositionData, sizeof(PositionBuffer));
-
-		for (GameObject* pGameObject : m_GameObjects)
-		{
-			m_MatrixData.ModelToWorld = pGameObject->GetTransformationMatrix();
-			MapUpdateAndUnmapSubresource(m_pDeviceContext, m_pMatrixBuffer, &m_MatrixData, sizeof(MatrixBuffer));
-			pGameObject->Render(m_pDeviceContext);
-		}
+		m_MatrixData.ModelToWorld = pGameObject->GetTransformationMatrix();
+		MapUpdateAndUnmapSubresource(m_pDeviceContext, m_pMatrixBuffer, &m_MatrixData, sizeof(MatrixBuffer));
+		pGameObject->Render(m_pDeviceContext);
 	}
 
 	m_pSwapChain->Present(0, 0);									// Presents a rendered image to the user.
@@ -258,6 +256,39 @@ D3D11_VIEWPORT Application::CreateSingleViewport()
 	Viewport.TopLeftX = 0;
 	Viewport.TopLeftY = 0;
 	return Viewport;
+}
+
+
+void Application::RenderShadowMapping(float DeltaTime)
+{
+	m_pDeviceContext->IASetInputLayout(m_pInputLayouts[1]);											// Bind to input-assembler stage.
+	m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetViews[1], m_pDepthStencilViews[1]);		// Bind render targets and the depth-stencil buffer to the output-merger stage.
+
+	// Clear render view and depth-stencil resource.
+	static const FLOAT RGBA[4] = { 0, 0, 0, 1 };				// Black color.
+	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetViews[1], RGBA);
+	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilViews[1], D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);
+
+	// Set shaders to the device.
+	m_pDeviceContext->VSSetShader(m_pVertexShaders[1], NULL, 0);
+	m_pDeviceContext->HSSetShader(NULL, NULL, 0);				// Hull shader. Passing NULL disables the shader for this pipeline stage.
+	m_pDeviceContext->DSSetShader(NULL, NULL, 0);				// Domain shader.
+	m_pDeviceContext->GSSetShader(NULL, NULL, 0);				// Geometry shader.
+	m_pDeviceContext->PSSetShader(m_pPixelShaders[1], NULL, 0);
+
+	MapUpdateAndUnmapSubresource(m_pDeviceContext, m_pPositionBuffer, &m_PositionData, sizeof(PositionBuffer));
+
+	m_MatrixData.Projection = m_PointLight.GetProjectionMatrix();
+	m_MatrixData.WorldToView = m_PointLight.GetWorldToViewMatrix(POINT_LIGHT_FACE_FORWARD);
+
+	for (GameObject* pGameObject : m_GameObjects)
+	{
+		m_MatrixData.ModelToWorld = pGameObject->GetTransformationMatrix();
+		MapUpdateAndUnmapSubresource(m_pDeviceContext, m_pMatrixBuffer, &m_MatrixData, sizeof(MatrixBuffer));
+		pGameObject->Render(m_pDeviceContext);
+	}
+
+	m_pSwapChain->Present(0, 0);									// Presents a rendered image to the user.
 }
 
 
@@ -284,4 +315,5 @@ void Application::OnResize()
 	m_pDeviceContext->RSSetViewports(1, &CreateSingleViewport());									// Bind viewport to the rasterizer stage of the pipeline.
 	m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetViews[0], m_pDepthStencilViews[0]);		// Bind render targets and the depth-stencil to the pipeline.
 	m_Camera.SetAspectRatio(GetAspectRatio());
+	m_PointLight.SetAspectRatio(GetAspectRatio());
 }

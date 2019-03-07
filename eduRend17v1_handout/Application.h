@@ -43,8 +43,8 @@ private:
 	//
 	// Shadow Mapping
 	//
-	ID3D11Texture2D* m_pShaderResource;
-	ID3D11ShaderResourceView* m_pShaderResourceView;
+	ID3D11Texture2D* m_pShaderResources[1];
+	ID3D11ShaderResourceView* m_pShaderResourceViews[1];
 
 	//
 	// Buffers
@@ -56,11 +56,12 @@ private:
 	PositionBuffer m_PositionData;
 
 	Camera m_Camera;
-	PointLight* m_pPointLight;
+	PointLight m_PointLight;
 	InputHandler m_InputHandler;
 	vector<GameObject*> m_GameObjects;
 
 	D3D11_VIEWPORT CreateSingleViewport();
+	void RenderShadowMapping(float DeltaTime);
 	void OnResize();
 
 };
