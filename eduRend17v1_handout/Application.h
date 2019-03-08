@@ -12,6 +12,11 @@
 
 using std::vector;
 
+#define MAX_RENDER_TARGETS_LEN 2
+#define MAX_DEPTH_STENCIL_RESOURCE_LEN 2
+#define MAX_SHADER_RESOURCE_LEN 1
+#define MAX_INPUT_LEN 2
+
 class Application : private Window
 {
 public:
@@ -30,21 +35,21 @@ public:
 private:
 	ID3D11Device* m_pDevice;
 	ID3D11DeviceContext* m_pDeviceContext;
-	ID3D11InputLayout* m_pInputLayouts[2];			// 0 - Common Shader, 1 - Shadow Mapping Shader.
-	ID3D11PixelShader* m_pPixelShaders[2];
+	ID3D11InputLayout* m_pInputLayouts[MAX_INPUT_LEN];			// 0 - Common Shader, 1 - Shadow Mapping Shader.
+	ID3D11PixelShader* m_pPixelShaders[MAX_INPUT_LEN];
 	ID3D11RasterizerState* m_pRasterizerState;
-	ID3D11RenderTargetView* m_pRenderTargetViews[2];
-	ID3D11Texture2D* m_pDepthStencilResources[2];
-	ID3D11DepthStencilView* m_pDepthStencilViews[2];
-	ID3D11VertexShader* m_pVertexShaders[2];
+	ID3D11RenderTargetView* m_pRenderTargetViews[MAX_RENDER_TARGETS_LEN];
+	ID3D11Texture2D* m_pDepthStencilResources[MAX_RENDER_TARGETS_LEN];
+	ID3D11DepthStencilView* m_pDepthStencilViews[MAX_RENDER_TARGETS_LEN];
+	ID3D11VertexShader* m_pVertexShaders[MAX_INPUT_LEN];
 	ID3D11SamplerState* m_pSamplerState;
 	IDXGISwapChain* m_pSwapChain;
 
 	//
 	// Shadow Mapping
 	//
-	ID3D11Texture2D* m_pShaderResources[1];
-	ID3D11ShaderResourceView* m_pShaderResourceViews[1];
+	ID3D11Texture2D* m_pShaderResources[MAX_SHADER_RESOURCE_LEN];
+	ID3D11ShaderResourceView* m_pShaderResourceViews[MAX_SHADER_RESOURCE_LEN];
 
 	//
 	// Buffers

@@ -199,8 +199,6 @@ void Application::Update(float DeltaTime)
 	for (GameObject* pGameObject : m_GameObjects)
 		pGameObject->Update(DeltaTime);
 
-	m_MatrixData.Projection = m_Camera.GetProjectionMatrix();
-	m_MatrixData.WorldToView = m_Camera.GetWorldToViewMatrix();
 	m_PositionData.CameraPosition = m_Camera.GetPosition();
 }
 
@@ -296,10 +294,6 @@ void Application::OnResize()
 {
 	m_pDeviceContext->OMSetRenderTargets(0, NULL, NULL);		// Unbind render targets and the depth-stencil from the pipeline.
 
-	SAFE_RELEASE(m_pRenderTargetViews[0]);
-	SAFE_RELEASE(m_pDepthStencilResources[0]);
-	SAFE_RELEASE(m_pDepthStencilViews[0]);
-
 	if (FAILED(m_pSwapChain->ResizeBuffers(
 		0,				// Preserve the existing number of buffers in the swap chain.
 		0,				// Use the width of the client area of the window, zero value can't be used if you called the IDXGIFactory2::CreateSwapChainForComposition method to create the swap chain.
@@ -308,12 +302,18 @@ void Application::OnResize()
 		0)))
 		throw std::exception("ResizeBuffers Failed");
 
-	CreateRenderTargetView(m_pDevice, m_pSwapChain, &m_pRenderTargetViews[0]);
-	CreateDepthStencilResource(m_pDevice, GetClientWidth(), GetClientHeight(), &m_pDepthStencilResources[0]);
-	CreateDepthStencilView(m_pDevice, m_pDepthStencilResources[0], &m_pDepthStencilViews[0]);
+	for (unsigned int i = 0; i < MAX_RENDER_TARGETS_LEN; ++i)
+	{
+		SAFE_RELEASE(m_pRenderTargetViews[i]);
+		SAFE_RELEASE(m_pDepthStencilResources[i]);
+		SAFE_RELEASE(m_pDepthStencilViews[i]);
 
-	m_pDeviceContext->RSSetViewports(1, &CreateSingleViewport());									// Bind viewport to the rasterizer stage of the pipeline.
-	m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetViews[0], m_pDepthStencilViews[0]);		// Bind render targets and the depth-stencil to the pipeline.
+		CreateRenderTargetView(m_pDevice, m_pSwapChain, &m_pRenderTargetViews[i]);
+		CreateDepthStencilResource(m_pDevice, GetClientWidth(), GetClientHeight(), &m_pDepthStencilResources[i]);
+		CreateDepthStencilView(m_pDevice, m_pDepthStencilResources[i], &m_pDepthStencilViews[i]);
+	}
+
+	m_pDeviceContext->RSSetViewports(1, &CreateSingleViewport());						// Bind viewport to the rasterizer stage of the pipeline.
 	m_Camera.SetAspectRatio(GetAspectRatio());
 	m_PointLight.SetAspectRatio(GetAspectRatio());
 }
