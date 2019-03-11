@@ -18,11 +18,7 @@ struct VSIn
 struct PSIn
 {
     float4 Pos : SV_Position;
-    float3 WorldPos : POSITION;
-    float3 Normal : NORMAL;
-    float3 Tangent : TANGENT;
-    float3 Binormal : BINORMAL;
-    float2 TexCoord : TEX;
+    float Depth : TEX;
 };
 
 //-----------------------------------------------------------------------------------------
@@ -42,11 +38,6 @@ PSIn VS_main(VSIn input)
 	
 	// Perform transformations and send to output
     output.Pos = mul(MVP, float4(input.Pos, 1));
-    output.WorldPos = mul(ModelToWorld, float4(input.Pos, 1)).xyz;
-    output.Normal = normalize(mul(ModelToWorld, float4(input.Normal, 0)).xyz);
-    output.Tangent = normalize(mul(ModelToWorld, float4(input.Tangent, 0)).xyz);
-    output.Binormal = normalize(mul(ModelToWorld, float4(input.Binormal, 0)).xyz);
-    output.TexCoord = float2(input.TexCoord.x, 1 - input.TexCoord.y);
-	
+    output.Depth = output.Pos.z / output.Pos.w;
     return output;
 }

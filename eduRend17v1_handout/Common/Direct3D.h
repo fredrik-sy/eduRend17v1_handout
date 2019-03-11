@@ -19,7 +19,7 @@ void CreateRenderTargetView(ID3D11Device* pDevice, IDXGISwapChain* pSwapChain, I
 //
 //   PURPOSE: Binds a texture as a depth-stencil target.
 //
-void CreateDepthStencilResource(ID3D11Device* pDevice, UINT Width, UINT Height, ID3D11Texture2D** ppDepthStencilResource);
+void CreateDepthStencilBuffer(ID3D11Device* pDevice, UINT Width, UINT Height, ID3D11Texture2D** ppDepthStencilResource);
 
 
 //
@@ -85,7 +85,7 @@ void MapUpdateAndUnmapSubresource(ID3D11DeviceContext* pDeviceContext, ID3D11Res
 //
 //   PURPOSE: Binds a texture as a shader target.
 //
-void CreateShaderResource(ID3D11Device* pDevice, UINT Width, UINT Height, ID3D11Texture2D** ppShaderResource);
+void CreateShaderResourceBuffer(ID3D11Device* pDevice, UINT Width, UINT Height, ID3D11Texture2D** ppShaderResource);
 
 
 //
