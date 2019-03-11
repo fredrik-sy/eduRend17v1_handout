@@ -115,3 +115,10 @@ inline void CreateVertexBuffer(ID3D11Device* pDevice, std::vector<T>* pVertices,
 	if (FAILED(pDevice->CreateBuffer(&Desc, &InitialData, ppBuffer)))
 		throw std::exception("CreateBuffer Failed");
 }
+
+
+//
+//   PURPOSE: Retrieves the current directory for the executable file.
+//
+std::string GetCurrentPathA();
+std::wstring GetCurrentPathW();

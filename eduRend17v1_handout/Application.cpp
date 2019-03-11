@@ -47,21 +47,21 @@ Application::Application(HINSTANCE hInstance, WNDPROC lpfnWndProc)
 		{ "TEX",		0, DXGI_FORMAT_R32G32_FLOAT,	0, 48,	D3D11_INPUT_PER_VERTEX_DATA, 0 } };
 
 
-	CompileShader((GetCurrentPath() + L"\\ShadowMapping.vs.hlsl").c_str(), "VS_main", "vs_5_0", &pCode);
+	CompileShader((GetCurrentPathW() + L"/assets/shaders/ShadowMapping.vs.hlsl").c_str(), "VS_main", "vs_5_0", &pCode);
 	CreateVertexShader(m_pDevice, pCode, &m_pVertexShaders[0]);
 	CreateInputLayout(m_pDevice, InputElementDescs, ARRAYSIZE(InputElementDescs), pCode, &m_pInputLayouts[0]);
 	SAFE_RELEASE(pCode);
 
-	CompileShader((GetCurrentPath() + L"\\ShadowMapping.ps.hlsl").c_str(), "PS_main", "ps_5_0", &pCode);
+	CompileShader((GetCurrentPathW() + L"/assets/shaders/ShadowMapping.ps.hlsl").c_str(), "PS_main", "ps_5_0", &pCode);
 	CreatePixelShader(m_pDevice, pCode, &m_pPixelShaders[0]);
 	SAFE_RELEASE(pCode);
 
-	CompileShader((GetCurrentPath() + L"\\DrawTri.vs.hlsl").c_str(), "VS_main", "vs_5_0", &pCode);
+	CompileShader((GetCurrentPathW() + L"/assets/shaders/DrawTri.vs.hlsl").c_str(), "VS_main", "vs_5_0", &pCode);
 	CreateVertexShader(m_pDevice, pCode, &m_pVertexShaders[INPUT_LEN - 1]);
 	CreateInputLayout(m_pDevice, InputElementDescs, ARRAYSIZE(InputElementDescs), pCode, &m_pInputLayouts[INPUT_LEN - 1]);
 	SAFE_RELEASE(pCode);
 
-	CompileShader((GetCurrentPath() + L"\\DrawTri.ps.hlsl").c_str(), "PS_main", "ps_5_0", &pCode);
+	CompileShader((GetCurrentPathW() + L"/assets/shaders/DrawTri.ps.hlsl").c_str(), "PS_main", "ps_5_0", &pCode);
 	CreatePixelShader(m_pDevice, pCode, &m_pPixelShaders[INPUT_LEN - 1]);
 	SAFE_RELEASE(pCode);
 

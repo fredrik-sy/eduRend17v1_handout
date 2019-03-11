@@ -5,7 +5,7 @@
 #include "Common/OBJLoader.h"
 
 WoodDoll::WoodDoll(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, ID3D11Buffer* pPhongBuffer)
-	: GameObject("../assets/wooddoll/wooddoll.obj", pDevice, pDeviceContext, pPhongBuffer)
+	: GameObject((GetCurrentPathA() + "/assets/wooddoll/wooddoll.obj").c_str(), pDevice, pDeviceContext, pPhongBuffer)
 {
 }
 

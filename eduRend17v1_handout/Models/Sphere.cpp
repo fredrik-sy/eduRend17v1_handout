@@ -4,7 +4,7 @@
 
 
 Sphere::Sphere(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, ID3D11Buffer* pPhongBuffer)
-	: GameObject("../assets/sphere/sphere.obj", pDevice, pDeviceContext, pPhongBuffer)
+	: GameObject((GetCurrentPathA() + "/assets/sphere/sphere.obj").c_str(), pDevice, pDeviceContext, pPhongBuffer)
 {
 }
 

@@ -3,7 +3,7 @@
 #include "source/mesh.h"
 
 Sponza::Sponza(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, ID3D11Buffer* pPhongBuffer)
-	: GameObject("../assets/crytek-sponza/sponza.obj", pDevice, pDeviceContext, pPhongBuffer)
+	: GameObject((GetCurrentPathA() + "/assets/crytek-sponza/sponza.obj").c_str(), pDevice, pDeviceContext, pPhongBuffer)
 {
 }
 

@@ -8,7 +8,6 @@ public:
 
 	void CreateWindowFrame(HINSTANCE hInstance);
 	void RegisterWindowClass(HINSTANCE hInstance, WNDPROC lpfnWndProc);
-	std::wstring GetCurrentPath();
 	long GetClientWidth();
 	long GetClientHeight();
 	float GetAspectRatio();

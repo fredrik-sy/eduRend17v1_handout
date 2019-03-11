@@ -119,7 +119,7 @@
       <AdditionalLibraryDirectories>..\DirectXTK\lib\release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(SolutionDir)assets\shaders\*.hlsl $(SolutionDir)Build\Release\bin\ /y</Command>
+      <Command>xcopy $(SolutionDir)assets $(SolutionDir)Build\Release\bin\assets /s /e /i /d /y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

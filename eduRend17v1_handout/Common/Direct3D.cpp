@@ -329,3 +329,20 @@ void CreateShaderResourceView(ID3D11Device* pDevice, ID3D11Texture2D* pShaderRes
 	if (FAILED(pDevice->CreateShaderResourceView(pShaderResource, &Desc, ppShaderResourceView)))
 		throw std::exception("CreateShaderResourceView Failed");
 }
+
+
+std::string GetCurrentPathA()
+{
+	CHAR lpBuffer[MAX_PATH];
+	GetModuleFileNameA(NULL, lpBuffer, MAX_PATH);
+	std::string FileName(lpBuffer);
+	return FileName.substr(0, FileName.find_last_of("\\"));
+}
+
+std::wstring GetCurrentPathW()
+{
+	WCHAR lpBuffer[MAX_PATH];
+	GetModuleFileNameW(NULL, lpBuffer, MAX_PATH);
+	std::wstring FileName(lpBuffer);
+	return FileName.substr(0, FileName.find_last_of(L"\\"));
+}
