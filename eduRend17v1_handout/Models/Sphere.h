@@ -19,7 +19,7 @@ public:
 
 inline mat4f Sphere::GetTransformationMatrix()
 {
-	return mat4f::translation(0.0f, -1.0f, -10.0f)
+	return mat4f::translation(0.0f, -3.5f, -10.0f)
 		* mat4f::scaling(1.0f);
 }
 

@@ -6,6 +6,12 @@ cbuffer MatrixBuffer : register(b0)
     matrix Projection;
 };
 
+cbuffer LightMatrixBuffer : register(b1)
+{
+    matrix LightWorldToView;
+    matrix LightProjection;
+};
+
 struct VSIn
 {
     float3 Pos : POSITION;
@@ -18,7 +24,8 @@ struct VSIn
 struct PSIn
 {
     float4 Pos : SV_Position;
-    float3 WorldPos : POSITION;
+    float4 LightPos : POSITION0;
+    float3 WorldPos : POSITION1;
     float3 Normal : NORMAL;
     float3 Tangent : TANGENT;
     float3 Binormal : BINORMAL;
@@ -35,18 +42,22 @@ PSIn VS_main(VSIn input)
 	
 	// Model->View transformation
     matrix MV = mul(WorldToView, ModelToWorld);
+    matrix LightMV = mul(LightWorldToView, ModelToWorld);
 
 	// Model->View->Projection (clip space) transformation
 	// SV_Position expects the output position to be in clip space
     matrix MVP = mul(Projection, MV);
+    matrix LightMVP = mul(LightProjection, LightMV);
 	
 	// Perform transformations and send to output
     output.Pos = mul(MVP, float4(input.Pos, 1));
+    output.LightPos = mul(LightMVP, float4(input.Pos, 1));
     output.WorldPos = mul(ModelToWorld, float4(input.Pos, 1)).xyz;
     output.Normal = normalize(mul(ModelToWorld, float4(input.Normal, 0)).xyz);
     output.Tangent = normalize(mul(ModelToWorld, float4(input.Tangent, 0)).xyz);
     output.Binormal = normalize(mul(ModelToWorld, float4(input.Binormal, 0)).xyz);
     output.TexCoord = float2(input.TexCoord.x, 1 - input.TexCoord.y);
 	
+
     return output;
 }

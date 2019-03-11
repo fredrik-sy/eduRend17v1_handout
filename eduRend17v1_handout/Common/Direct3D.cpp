@@ -11,7 +11,7 @@ void CreateDeviceAndSwapChain(HWND OutputWindow, ID3D11Device** ppDevice, ID3D11
 	D3D_DRIVER_TYPE DriverType = D3D_DRIVER_TYPE_HARDWARE;
 
 #ifdef _DEBUG
-	//Flags |= D3D11_CREATE_DEVICE_DEBUG;
+	Flags |= D3D11_CREATE_DEVICE_DEBUG;
 	//Flags |= D3D11_CREATE_DEVICE_DEBUGGABLE;
 #endif
 
@@ -70,17 +70,28 @@ void CreateRenderTargetView(ID3D11Device* pDevice, IDXGISwapChain* pSwapChain, I
 }
 
 
-void CreateRenderTargetView(ID3D11Device * pDevice, IDXGISwapChain * pSwapChain, ID3D11Texture2D * pBuffer, ID3D11RenderTargetView ** ppRenderTargetView)
+void CreateRenderTargetView(ID3D11Device* pDevice, IDXGISwapChain* pSwapChain, ID3D11Texture2D* pBuffer, ID3D11RenderTargetView** ppRenderTargetView)
 {
+	if (pBuffer == NULL)
+	{
+		if (FAILED(pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBuffer)))
+			throw std::exception("GetBuffer Failed");
+	}
+
 	if (FAILED(pDevice->CreateRenderTargetView(
 		pBuffer,
 		NULL,																			// Create a view that can access all of the subresources in mipmap level 0.
 		ppRenderTargetView)))
+	{
+		SAFE_RELEASE(pBuffer);
 		throw std::exception("CreateRenderTargetView Failed");
+	}
+
+	SAFE_RELEASE(pBuffer);
 }
 
 
-void CreateDepthStencilResource(ID3D11Device* pDevice, UINT Width, UINT Height, ID3D11Texture2D** ppDepthStencilResource)
+void CreateDepthStencilBuffer(ID3D11Device* pDevice, UINT Width, UINT Height, ID3D11Texture2D** ppDepthStencilResource)
 {
 	D3D11_TEXTURE2D_DESC Desc;
 	Desc.Width = Width;
@@ -140,7 +151,7 @@ void CreateRasterizerState(ID3D11Device* pDevice, ID3D11RasterizerState** ppRast
 void CreateSamplerState(ID3D11Device * pDevice, ID3D11SamplerState ** ppSamplerState)
 {
 	D3D11_SAMPLER_DESC SamplerDesc;
-	SamplerDesc.Filter = D3D11_FILTER_COMPARISON_ANISOTROPIC;							// Filtering method to use when sampling a texture.
+	SamplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;							// Filtering method to use when sampling a texture.
 	SamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;									// Method to use for resolving a texture coordinate that is outside the 0 to 1 range.
 	SamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 	SamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -262,14 +273,14 @@ void MapUpdateAndUnmapSubresource(ID3D11DeviceContext* pDeviceContext, ID3D11Res
 	pDeviceContext->Unmap(pResource, 0);
 }
 
-void CreateShaderResource(ID3D11Device* pDevice, UINT Width, UINT Height, ID3D11Texture2D** ppShaderResource)
+void CreateShaderResourceBuffer(ID3D11Device* pDevice, UINT Width, UINT Height, ID3D11Texture2D** ppShaderResource)
 {
 	D3D11_TEXTURE2D_DESC Desc;
 	Desc.Width = Width;
 	Desc.Height = Height;
 	Desc.MipLevels = 1;																	// 1 for multisampled texture or 0 to generate a full set of subtextures.
 	Desc.ArraySize = 1;																	// Number of textures in the array.
-	Desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	Desc.Format = DXGI_FORMAT_R32_FLOAT;
 	Desc.SampleDesc.Count = 1;
 	Desc.SampleDesc.Quality = 0;
 	Desc.Usage = D3D11_USAGE_DEFAULT;
@@ -288,11 +299,11 @@ void CreateShaderResource(ID3D11Device* pDevice, UINT Width, UINT Height, ID3D11
 void CreateShaderResourceView(ID3D11Device* pDevice, ID3D11Texture2D* pShaderResource, ID3D11ShaderResourceView** ppShaderResourceView)
 {
 	D3D11_SHADER_RESOURCE_VIEW_DESC Desc;
-	Desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	Desc.Format = DXGI_FORMAT_R32_FLOAT;
 	Desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	Desc.Texture2D.MostDetailedMip = 0;
 	Desc.Texture2D.MipLevels = 1;
 
 	if (FAILED(pDevice->CreateShaderResourceView(pShaderResource, &Desc, ppShaderResourceView)))
-		throw std::exception("CreateBuffer Failed");
+		throw std::exception("CreateShaderResourceView Failed");
 }

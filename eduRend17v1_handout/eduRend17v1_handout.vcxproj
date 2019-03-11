@@ -138,8 +138,8 @@
     <ClCompile Include="Common\Timer.cpp" />
     <ClCompile Include="Common\Window.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Models\DirectionalLight.cpp" />
     <ClCompile Include="Models\GameObject.cpp" />
-    <ClCompile Include="Models\PointLight.cpp" />
     <ClCompile Include="Models\Sphere.cpp" />
     <ClCompile Include="Models\Sponza.cpp" />
     <ClCompile Include="Models\WoodDoll.cpp" />
@@ -152,14 +152,15 @@
     <ClInclude Include="Application.h" />
     <ClInclude Include="Buffers\PhongBuffer.h" />
     <ClInclude Include="Buffers\MatrixBuffer.h" />
+    <ClInclude Include="Buffers\LightMatrixBuffer.h" />
     <ClInclude Include="Buffers\PositionBuffer.h" />
     <ClInclude Include="Common\Camera.h" />
     <ClInclude Include="Common\Direct3D.h" />
     <ClInclude Include="Common\OBJLoader.h" />
     <ClInclude Include="Common\Timer.h" />
     <ClInclude Include="Common\Window.h" />
+    <ClInclude Include="Models\DirectionalLight.h" />
     <ClInclude Include="Models\GameObject.h" />
-    <ClInclude Include="Models\PointLight.h" />
     <ClInclude Include="Models\Sphere.h" />
     <ClInclude Include="Models\Sponza.h" />
     <ClInclude Include="Models\WoodDoll.h" />

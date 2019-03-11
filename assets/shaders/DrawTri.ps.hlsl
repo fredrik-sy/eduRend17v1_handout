@@ -3,10 +3,10 @@ Texture2D KdTexture : register(t1);
 Texture2D KsTexture : register(t2);
 Texture2D dTexture : register(t3);
 Texture2D bumpTexture : register(t4);
-Texture2D ShadowMappingTexture : register(t5);
+Texture2D LightTexture : register(t5);
 sampler Sampler : register(s0);
 
-cbuffer PositionBuffer : register(b1)
+cbuffer PositionBuffer : register(b0)
 {
     float3 LightPosition;
     float Padding1;
@@ -14,7 +14,7 @@ cbuffer PositionBuffer : register(b1)
     float Padding2;
 };
 
-cbuffer PhongBuffer : register(b2)
+cbuffer PhongBuffer : register(b1)
 {
     float3 KaConstant;
     float Padding3;
@@ -27,7 +27,8 @@ cbuffer PhongBuffer : register(b2)
 struct PSIn
 {
     float4 Pos : SV_Position;
-    float3 WorldPos : POSITION;
+    float4 LightPos : POSITION0;
+    float3 WorldPos : POSITION1;
     float3 Normal : NORMAL;
     float3 Tangent : TANGENT;
     float3 Binormal : BINORMAL;
@@ -77,5 +78,30 @@ float4 PS_main(PSIn input) : SV_Target
     float RdotV = dot(R, V);
     float3 Specular = Ks * max(pow(RdotV, Shininess), 0);
     
-    return float4(Ka + Diffuse + Specular, 1);
+    
+    float Bias = 0.001f;
+    float2 ProjectedTexCoord;
+    ProjectedTexCoord.x = input.LightPos.x / input.LightPos.w / 2.0f + 0.5f;
+    ProjectedTexCoord.y = -input.LightPos.y / input.LightPos.w / 2.0f + 0.5f;
+    
+    if (saturate(ProjectedTexCoord.x) == ProjectedTexCoord.x &&
+        saturate(ProjectedTexCoord.y) == ProjectedTexCoord.y)
+    {
+        float DepthValue = LightTexture.Sample(Sampler, ProjectedTexCoord).r;
+        
+        float LightDepthValue = input.LightPos.z / input.LightPos.w - Bias;
+        
+        if (LightDepthValue < DepthValue)
+        {
+            float LightIntensity = saturate(dot(input.Normal, input.LightPos.xyz));
+
+            if (LightIntensity > 0.0f)
+            {
+                Diffuse = saturate(Diffuse * LightIntensity);
+            }
+        }
+    }
+
+    return float4(Diffuse, 1);
+    //return float4(Ka + Diffuse + Specular, 1);
 }
