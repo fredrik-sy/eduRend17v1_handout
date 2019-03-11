@@ -12,7 +12,8 @@ void CreateDeviceAndSwapChain(HWND OutputWindow, ID3D11Device** ppDevice, ID3D11
 
 #ifdef _DEBUG
 	Flags |= D3D11_CREATE_DEVICE_DEBUG;
-	//Flags |= D3D11_CREATE_DEVICE_DEBUGGABLE;
+	Flags |= D3D11_CREATE_DEVICE_DEBUGGABLE;
+	DriverType = D3D_DRIVER_TYPE_WARP;
 #endif
 
 	DXGI_SWAP_CHAIN_DESC SwapChainDesc;

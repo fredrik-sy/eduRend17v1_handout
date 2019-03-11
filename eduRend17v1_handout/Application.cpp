@@ -36,7 +36,7 @@ Application::Application(HINSTANCE hInstance, WNDPROC lpfnWndProc)
 		{ "NORMAL",		0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12,	D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TANGENT",	0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24,	D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "BINORMAL",	0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 36,	D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEX",		0, DXGI_FORMAT_R32G32_FLOAT,	0, 48,	D3D11_INPUT_PER_VERTEX_DATA, 0 }, };
+		{ "TEX",		0, DXGI_FORMAT_R32G32_FLOAT,	0, 48,	D3D11_INPUT_PER_VERTEX_DATA, 0 } };
 
 	CompileShader(L"../assets/shaders/ShadowMapping.vs.hlsl", "VS_main", "vs_5_0", &pCode);
 	CreateVertexShader(m_pDevice, pCode, &m_pVertexShaders[0]);
@@ -286,6 +286,19 @@ void Application::OnResize()
 {
 	m_pDeviceContext->OMSetRenderTargets(0, NULL, NULL);		// Unbind render targets and the depth-stencil from the pipeline.
 
+	for (unsigned int i = 0; i < DEPTH_STENCIL_LEN; ++i)
+	{
+		if (i < SHADER_RESOURCE_LEN)
+		{
+			SAFE_RELEASE(m_pShaderResourceBuffers[i]);
+			SAFE_RELEASE(m_pShaderResourceViews[i]);
+		}
+
+		SAFE_RELEASE(m_pRenderTargetViews[i]);
+		SAFE_RELEASE(m_pDepthStencilBuffers[i]);
+		SAFE_RELEASE(m_pDepthStencilViews[i]);
+	}
+
 	if (FAILED(m_pSwapChain->ResizeBuffers(
 		0,				// Preserve the existing number of buffers in the swap chain.
 		0,				// Use the width of the client area of the window, zero value can't be used if you called the IDXGIFactory2::CreateSwapChainForComposition method to create the swap chain.
@@ -296,24 +309,20 @@ void Application::OnResize()
 
 	for (unsigned int i = 0; i < DEPTH_STENCIL_LEN; ++i)
 	{
-		SAFE_RELEASE(m_pDepthStencilBuffers[i]);
-		SAFE_RELEASE(m_pDepthStencilViews[i]);
 		CreateDepthStencilBuffer(m_pDevice, GetClientWidth(), GetClientHeight(), &m_pDepthStencilBuffers[i]);
 		CreateDepthStencilView(m_pDevice, m_pDepthStencilBuffers[i], &m_pDepthStencilViews[i]);
-	}
 
-	for (unsigned int i = 0; i < SHADER_RESOURCE_LEN; ++i)
-	{
-		SAFE_RELEASE(m_pShaderResourceBuffers[i]);
-		SAFE_RELEASE(m_pShaderResourceViews[i]);
-		SAFE_RELEASE(m_pRenderTargetViews[i]);
-		CreateShaderResourceBuffer(m_pDevice, GetClientWidth(), GetClientHeight(), &m_pShaderResourceBuffers[i]);
-		CreateShaderResourceView(m_pDevice, m_pShaderResourceBuffers[i], &m_pShaderResourceViews[i]);
-		CreateRenderTargetView(m_pDevice, m_pSwapChain, m_pShaderResourceBuffers[i], &m_pRenderTargetViews[i]);
+		if (i < SHADER_RESOURCE_LEN)
+		{
+			CreateShaderResourceBuffer(m_pDevice, GetClientWidth(), GetClientHeight(), &m_pShaderResourceBuffers[i]);
+			CreateShaderResourceView(m_pDevice, m_pShaderResourceBuffers[i], &m_pShaderResourceViews[i]);
+			CreateRenderTargetView(m_pDevice, m_pSwapChain, m_pShaderResourceBuffers[i], &m_pRenderTargetViews[i]);
+		}
+		else
+		{
+			CreateRenderTargetView(m_pDevice, m_pSwapChain, NULL, &m_pRenderTargetViews[DEPTH_STENCIL_LEN - 1]);
+		}
 	}
-
-	SAFE_RELEASE(m_pRenderTargetViews[DEPTH_STENCIL_LEN - 1]);
-	CreateRenderTargetView(m_pDevice, m_pSwapChain, NULL, &m_pRenderTargetViews[DEPTH_STENCIL_LEN - 1]);
 
 	m_pDeviceContext->RSSetViewports(1, &CreateSingleViewport());						// Bind viewport to the rasterizer stage of the pipeline.
 	m_Camera.SetAspectRatio(GetAspectRatio());

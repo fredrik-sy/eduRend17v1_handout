@@ -32,7 +32,8 @@ struct PSIn
     float3 Normal : NORMAL;
     float3 Tangent : TANGENT;
     float3 Binormal : BINORMAL;
-    float2 TexCoord : TEX;
+    float2 TexCoord : TEX0;
+    float Depth : TEX1;
 };
 
 float3 SampleTexture(float3 Constant, Texture2D Tex, float2 TexCoord)
@@ -80,14 +81,13 @@ float4 PS_main(PSIn input) : SV_Target
     
     
     float Bias = 0.001f;
-    float2 ProjectedTexCoord;
-    ProjectedTexCoord.x = input.LightPos.x / input.LightPos.w / 2.0f + 0.5f;
-    ProjectedTexCoord.y = -input.LightPos.y / input.LightPos.w / 2.0f + 0.5f;
-
+    
+    float2 ProjectedTexCoord = (input.LightPos / input.LightPos.w) * 0.5f + 0.5f;
+    
     float DepthValue = LightTexture.Sample(Sampler, ProjectedTexCoord.xy).r;
 
-    if (DepthValue < input.LightPos.z)
-        return float4(Ka, 1);
+    if (input.LightPos.z == DepthValue)
+        return float4(0, 0, 0, 1);
     
     return float4(Ka + Diffuse + Specular, 1);
 }
