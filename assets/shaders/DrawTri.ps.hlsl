@@ -3,8 +3,9 @@ Texture2D KdTexture : register(t1);
 Texture2D KsTexture : register(t2);
 Texture2D dTexture : register(t3);
 Texture2D bumpTexture : register(t4);
-Texture2D LightTexture : register(t5);
+Texture2D ShadowTexture : register(t5);
 sampler Sampler : register(s0);
+SamplerComparisonState ComparisonSampler : register(s1);
 
 cbuffer PositionBuffer : register(b0)
 {
@@ -74,20 +75,33 @@ float4 PS_main(PSIn input) : SV_Target
     float3 N = normalize(Normal);
     float3 R = normalize(reflect(normalize(input.WorldPos - LightPosition), N));
     
-    float3 Diffuse = Kd * max(dot(L, N), 0);
+    float LdotN = dot(L, N);
+    float3 Diffuse = Kd * max(LdotN, 0);
 
     float RdotV = dot(R, V);
     float3 Specular = Ks * max(pow(RdotV, Shininess), 0);
     
     
-    float Bias = 0.001f;
-    
-    float2 ProjectedTexCoord = (input.LightPos / input.LightPos.w) * 0.5f + 0.5f;
-    
-    float DepthValue = LightTexture.Sample(Sampler, ProjectedTexCoord.xy).r;
+    float2 ShadowTexCoord;
+    ShadowTexCoord.x = 0.5f + (input.LightPos.x / input.LightPos.w * 0.5f);
+    ShadowTexCoord.y = 0.5f - (input.LightPos.y / input.LightPos.w * 0.5f);
+    float PixelDepth = input.LightPos.z / input.LightPos.w;
 
-    if (input.LightPos.z == DepthValue)
-        return float4(0, 0, 0, 1);
+    if (saturate(ShadowTexCoord.x) == ShadowTexCoord.x &&
+        saturate(ShadowTexCoord.y) == ShadowTexCoord.y &&
+        PixelDepth > 0)
+    {
+        float Margin = acos(saturate(LdotN));
+        float Epsilon = clamp(0.0005 / Margin, 0, 0.1);
+
+        float Lighting = ShadowTexture.Sample(Sampler, ShadowTexCoord).r;
+
+        if (Lighting < (PixelDepth - Epsilon))
+        {
+            float3 Shadow = (Lighting * (Ka + Diffuse + Specular)) + (Ka * (1.0f - Lighting));
+            return float4(Shadow, 1.0f);
+        }
+    }
     
     return float4(Ka + Diffuse + Specular, 1);
 }

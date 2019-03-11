@@ -31,13 +31,14 @@ void CreateDepthStencilView(ID3D11Device* pDevice, ID3D11Texture2D* pDepthStenci
 //
 //   PURPOSE: Creates a rasterizer state object that tells the rasterizer stage how to behave.
 //
-void CreateRasterizerState(ID3D11Device* pDevice, ID3D11RasterizerState** ppRasterizerState);
+void CreateRasterizerState(ID3D11Device* pDevice, ID3D11RasterizerState** ppRasterizerState, D3D11_CULL_MODE CullMode);
 
 
 //
 //   PURPOSE: Creates a sampler-state object that encapsulates sampling information for a texture.
 //
 void CreateSamplerState(ID3D11Device* pDevice, ID3D11SamplerState** ppSamplerState);
+void CreateComparisonSamplerState(ID3D11Device* pDevice, ID3D11SamplerState** ppSamplerState);
 
 
 //

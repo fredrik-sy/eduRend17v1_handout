@@ -60,6 +60,15 @@ void Window::RegisterWindowClass(HINSTANCE hInstance, WNDPROC lpfnWndProc)
 }
 
 
+std::wstring Window::GetCurrentPath()
+{
+	WCHAR lpBuffer[MAX_PATH];
+	GetModuleFileNameW(NULL, lpBuffer, MAX_PATH);
+	std::wstring FileName(lpBuffer);
+	return FileName.substr(0, FileName.find_last_of(L"\\"));
+}
+
+
 long Window::GetClientWidth()
 {
 	RECT lpRect;

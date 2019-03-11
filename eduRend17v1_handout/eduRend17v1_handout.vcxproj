@@ -90,6 +90,9 @@
       <AdditionalLibraryDirectories>..\DirectXTK\lib\debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>DirectXTK.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy $(SolutionDir)assets\shaders\*.hlsl $(SolutionDir)Build\Debug\bin\ /y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -115,6 +118,9 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>..\DirectXTK\lib\release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy $(SolutionDir)assets\shaders\*.hlsl $(SolutionDir)Build\Release\bin\ /y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -174,7 +180,9 @@
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\assets\shaders\DrawTri.ps.hlsl" />
+    <None Include="..\assets\shaders\DrawTri.ps.hlsl">
+      <DeploymentContent>false</DeploymentContent>
+    </None>
     <None Include="..\assets\shaders\DrawTri.vs.hlsl" />
   </ItemGroup>
   <ItemGroup>

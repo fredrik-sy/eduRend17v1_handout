@@ -99,7 +99,7 @@ void CreateDepthStencilBuffer(ID3D11Device* pDevice, UINT Width, UINT Height, ID
 	Desc.Height = Height;
 	Desc.MipLevels = 1;																	// 1 for multisampled texture or 0 to generate a full set of subtextures.
 	Desc.ArraySize = 1;																	// Number of textures in the array.
-	Desc.Format = DXGI_FORMAT_D32_FLOAT;
+	Desc.Format = DXGI_FORMAT_R24G8_TYPELESS;
 	Desc.SampleDesc.Count = 1;
 	Desc.SampleDesc.Quality = 0;
 	Desc.Usage = D3D11_USAGE_DEFAULT;
@@ -118,7 +118,8 @@ void CreateDepthStencilBuffer(ID3D11Device* pDevice, UINT Width, UINT Height, ID
 void CreateDepthStencilView(ID3D11Device* pDevice, ID3D11Texture2D* pDepthStencilResource, ID3D11DepthStencilView** ppDepthStencilView)
 {
 	D3D11_DEPTH_STENCIL_VIEW_DESC Desc = { };
-	Desc.Format = DXGI_FORMAT_D32_FLOAT;
+	ZeroMemory(&Desc, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
+	Desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	Desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	Desc.Texture2D.MipSlice = 0;
 
@@ -130,11 +131,11 @@ void CreateDepthStencilView(ID3D11Device* pDevice, ID3D11Texture2D* pDepthStenci
 }
 
 
-void CreateRasterizerState(ID3D11Device* pDevice, ID3D11RasterizerState** ppRasterizerState)
+void CreateRasterizerState(ID3D11Device* pDevice, ID3D11RasterizerState** ppRasterizerState, D3D11_CULL_MODE CullMode)
 {
 	D3D11_RASTERIZER_DESC RasterizerDesc;
 	RasterizerDesc.FillMode = D3D11_FILL_SOLID;
-	RasterizerDesc.CullMode = D3D11_CULL_BACK;											// Don't draw triangles that are back-facing.
+	RasterizerDesc.CullMode = CullMode;													// Don't draw triangles that are back-facing.
 	RasterizerDesc.FrontCounterClockwise = TRUE;										// A triangle will be front-facing if its vertices are counter-clockwise.
 	RasterizerDesc.DepthBias = FALSE;
 	RasterizerDesc.DepthBiasClamp = 0;
@@ -164,6 +165,29 @@ void CreateSamplerState(ID3D11Device * pDevice, ID3D11SamplerState ** ppSamplerS
 	SamplerDesc.BorderColor[2] = 1.0f;
 	SamplerDesc.BorderColor[3] = 1.0f;
 	SamplerDesc.MinLOD = -FLT_MAX;
+	SamplerDesc.MaxLOD = FLT_MAX;
+
+	if (FAILED(pDevice->CreateSamplerState(&SamplerDesc, ppSamplerState)))
+		throw std::exception("CreateSamplerState Failed");
+}
+
+
+void CreateComparisonSamplerState(ID3D11Device* pDevice, ID3D11SamplerState** ppSamplerState)
+{
+	D3D11_SAMPLER_DESC SamplerDesc;
+	ZeroMemory(&SamplerDesc, sizeof(D3D11_SAMPLER_DESC));
+	SamplerDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;						// Filtering method to use when sampling a texture.
+	SamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;								// Method to use for resolving a texture coordinate that is outside the 0 to 1 range.
+	SamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	SamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	SamplerDesc.MipLODBias = 0.0f;														// Offset from the calculated mipmap level.
+	SamplerDesc.MaxAnisotropy = 0;														// Clamping value used if D3D11_FILTER_ANISOTROPIC or D3D11_FILTER_COMPARISON_ANISOTROPIC is specified in Filter.
+	SamplerDesc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;							// Compares sampled data against existing sampled data.
+	SamplerDesc.BorderColor[0] = 1.0f;
+	SamplerDesc.BorderColor[1] = 1.0f;
+	SamplerDesc.BorderColor[2] = 1.0f;
+	SamplerDesc.BorderColor[3] = 1.0f;
+	SamplerDesc.MinLOD = 0.0f;
 	SamplerDesc.MaxLOD = FLT_MAX;
 
 	if (FAILED(pDevice->CreateSamplerState(&SamplerDesc, ppSamplerState)))
@@ -277,17 +301,14 @@ void MapUpdateAndUnmapSubresource(ID3D11DeviceContext* pDeviceContext, ID3D11Res
 void CreateShaderResourceBuffer(ID3D11Device* pDevice, UINT Width, UINT Height, ID3D11Texture2D** ppShaderResource)
 {
 	D3D11_TEXTURE2D_DESC Desc;
+	ZeroMemory(&Desc, sizeof(D3D11_TEXTURE2D_DESC));
 	Desc.Width = Width;
 	Desc.Height = Height;
 	Desc.MipLevels = 1;																	// 1 for multisampled texture or 0 to generate a full set of subtextures.
 	Desc.ArraySize = 1;																	// Number of textures in the array.
-	Desc.Format = DXGI_FORMAT_R32_FLOAT;
+	Desc.Format = DXGI_FORMAT_R24G8_TYPELESS;
 	Desc.SampleDesc.Count = 1;
-	Desc.SampleDesc.Quality = 0;
-	Desc.Usage = D3D11_USAGE_DEFAULT;
-	Desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-	Desc.CPUAccessFlags = 0;															// CPU access is not required.
-	Desc.MiscFlags = 0;
+	Desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_DEPTH_STENCIL;
 
 	if (FAILED(pDevice->CreateTexture2D(
 		&Desc,
@@ -300,9 +321,9 @@ void CreateShaderResourceBuffer(ID3D11Device* pDevice, UINT Width, UINT Height, 
 void CreateShaderResourceView(ID3D11Device* pDevice, ID3D11Texture2D* pShaderResource, ID3D11ShaderResourceView** ppShaderResourceView)
 {
 	D3D11_SHADER_RESOURCE_VIEW_DESC Desc;
-	Desc.Format = DXGI_FORMAT_R32_FLOAT;
+	ZeroMemory(&Desc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+	Desc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
 	Desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	Desc.Texture2D.MostDetailedMip = 0;
 	Desc.Texture2D.MipLevels = 1;
 
 	if (FAILED(pDevice->CreateShaderResourceView(pShaderResource, &Desc, ppShaderResourceView)))

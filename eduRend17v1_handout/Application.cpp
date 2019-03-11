@@ -12,20 +12,28 @@ Application::Application(HINSTANCE hInstance, WNDPROC lpfnWndProc)
 	: Window("eduRend", "eduRend", hInstance, lpfnWndProc)
 {
 	CreateDeviceAndSwapChain(GetWindowHandle(), &m_pDevice, &m_pDeviceContext, &m_pSwapChain);
-	CreateRasterizerState(m_pDevice, &m_pRasterizerState);
+	CreateRasterizerState(m_pDevice, &m_pRasterizerState, D3D11_CULL_BACK);
 	CreateSamplerState(m_pDevice, &m_pSamplerState);
-
-	for (unsigned int i = 0; i < DEPTH_STENCIL_LEN; ++i)
-	{
-		CreateDepthStencilBuffer(m_pDevice, GetClientWidth(), GetClientHeight(), &m_pDepthStencilBuffers[i]);
-		CreateDepthStencilView(m_pDevice, m_pDepthStencilBuffers[i], &m_pDepthStencilViews[i]);
-	}
+	CreateComparisonSamplerState(m_pDevice, &m_pComparisonSamplerState);
 
 	for (unsigned int i = 0; i < SHADER_RESOURCE_LEN; ++i)
 	{
 		CreateShaderResourceBuffer(m_pDevice, GetClientWidth(), GetClientHeight(), &m_pShaderResourceBuffers[i]);
 		CreateShaderResourceView(m_pDevice, m_pShaderResourceBuffers[i], &m_pShaderResourceViews[i]);
-		CreateRenderTargetView(m_pDevice, m_pSwapChain, m_pShaderResourceBuffers[i], &m_pRenderTargetViews[i]);
+		//CreateRenderTargetView(m_pDevice, m_pSwapChain, m_pShaderResourceBuffers[i], &m_pRenderTargetViews[i]);
+	}
+
+	for (unsigned int i = 0; i < DEPTH_STENCIL_LEN; ++i)
+	{
+		if (i < SHADER_RESOURCE_LEN)
+		{
+			CreateDepthStencilView(m_pDevice, m_pShaderResourceBuffers[i], &m_pDepthStencilViews[i]);
+		}
+		else
+		{
+			CreateDepthStencilBuffer(m_pDevice, GetClientWidth(), GetClientHeight(), &m_pDepthStencilBuffers[i]);
+			CreateDepthStencilView(m_pDevice, m_pDepthStencilBuffers[i], &m_pDepthStencilViews[i]);
+		}
 	}
 
 	CreateRenderTargetView(m_pDevice, m_pSwapChain, NULL, &m_pRenderTargetViews[DEPTH_STENCIL_LEN - 1]);
@@ -38,21 +46,22 @@ Application::Application(HINSTANCE hInstance, WNDPROC lpfnWndProc)
 		{ "BINORMAL",	0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 36,	D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TEX",		0, DXGI_FORMAT_R32G32_FLOAT,	0, 48,	D3D11_INPUT_PER_VERTEX_DATA, 0 } };
 
-	CompileShader(L"../assets/shaders/ShadowMapping.vs.hlsl", "VS_main", "vs_5_0", &pCode);
+
+	CompileShader((GetCurrentPath() + L"\\ShadowMapping.vs.hlsl").c_str(), "VS_main", "vs_5_0", &pCode);
 	CreateVertexShader(m_pDevice, pCode, &m_pVertexShaders[0]);
 	CreateInputLayout(m_pDevice, InputElementDescs, ARRAYSIZE(InputElementDescs), pCode, &m_pInputLayouts[0]);
 	SAFE_RELEASE(pCode);
 
-	CompileShader(L"../assets/shaders/ShadowMapping.ps.hlsl", "PS_main", "ps_5_0", &pCode);
+	CompileShader((GetCurrentPath() + L"\\ShadowMapping.ps.hlsl").c_str(), "PS_main", "ps_5_0", &pCode);
 	CreatePixelShader(m_pDevice, pCode, &m_pPixelShaders[0]);
 	SAFE_RELEASE(pCode);
 
-	CompileShader(L"../assets/shaders/DrawTri.vs.hlsl", "VS_main", "vs_5_0", &pCode);
+	CompileShader((GetCurrentPath() + L"\\DrawTri.vs.hlsl").c_str(), "VS_main", "vs_5_0", &pCode);
 	CreateVertexShader(m_pDevice, pCode, &m_pVertexShaders[INPUT_LEN - 1]);
 	CreateInputLayout(m_pDevice, InputElementDescs, ARRAYSIZE(InputElementDescs), pCode, &m_pInputLayouts[INPUT_LEN - 1]);
 	SAFE_RELEASE(pCode);
 
-	CompileShader(L"../assets/shaders/DrawTri.ps.hlsl", "PS_main", "ps_5_0", &pCode);
+	CompileShader((GetCurrentPath() + L"\\DrawTri.ps.hlsl").c_str(), "PS_main", "ps_5_0", &pCode);
 	CreatePixelShader(m_pDevice, pCode, &m_pPixelShaders[INPUT_LEN - 1]);
 	SAFE_RELEASE(pCode);
 
@@ -68,6 +77,7 @@ Application::~Application()
 	SAFE_RELEASE(m_pSwapChain);
 	SAFE_RELEASE(m_pRasterizerState);
 	SAFE_RELEASE(m_pSamplerState);
+	SAFE_RELEASE(m_pComparisonSamplerState);
 	SAFE_RELEASE(m_pMatrixBuffer);
 	SAFE_RELEASE(m_pPositionBuffer);
 	SAFE_RELEASE(m_pPhongBuffer);
@@ -220,28 +230,27 @@ void Application::Render(float DeltaTime)
 	// Shadow mapping and render View.
 	for (unsigned int i = 0; i < DEPTH_STENCIL_LEN; ++i)
 	{
-		unsigned int j = i < SHADER_RESOURCE_LEN ? 0 : 1;
+		// Clear render view and depth-stencil resource.
+		static const FLOAT RGBA[4] = { 100, 149, 237, 1 };													// Cornflower blue.
+		m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetViews[1], RGBA);
+		m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilViews[i], D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);
 
+		unsigned int j = i < SHADER_RESOURCE_LEN ? 0 : 1;
 		m_pDeviceContext->IASetInputLayout(m_pInputLayouts[j]);												// Bind to input-assembler stage.
-		
+
 		if (j)
 		{
 			m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetViews[i], m_pDepthStencilViews[i]);		// Bind render targets and the depth-stencil buffer to the output-merger stage.
+			m_pDeviceContext->PSSetShaderResources(5, 1, &m_pShaderResourceViews[0]);
 			m_MatrixData.Projection = m_Camera.GetProjectionMatrix();
 			m_MatrixData.WorldToView = m_Camera.GetWorldToViewMatrix();
-			m_pDeviceContext->PSSetShaderResources(5, 1, &m_pShaderResourceViews[0]);
 		}
 		else
 		{
-			m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetViews[i], m_pDepthStencilViews[i]);		// Bind render targets and the depth-stencil buffer to the output-merger stage.
+			m_pDeviceContext->OMSetRenderTargets(0, nullptr, m_pDepthStencilViews[i]);						// Bind render targets and the depth-stencil buffer to the output-merger stage.
 			m_MatrixData.Projection = m_DirectionalLight.GetProjectionMatrix();
 			m_MatrixData.WorldToView = m_DirectionalLight.GetWorldToViewMatrix();
 		}
-
-		// Clear render view and depth-stencil resource.
-		static const FLOAT RGBA[4] = { 0, 0, 0, 1 };				// Black color.
-		m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetViews[i], RGBA);
-		m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilViews[i], D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);
 
 		// Set shaders to the device.
 		m_pDeviceContext->VSSetShader(m_pVertexShaders[j], NULL, 0);
@@ -249,7 +258,7 @@ void Application::Render(float DeltaTime)
 		m_pDeviceContext->DSSetShader(NULL, NULL, 0);				// Domain shader.
 		m_pDeviceContext->GSSetShader(NULL, NULL, 0);				// Geometry shader.
 		m_pDeviceContext->PSSetShader(m_pPixelShaders[j], NULL, 0);
-		
+
 		MapUpdateAndUnmapSubresource(m_pDeviceContext, m_pPositionBuffer, &m_PositionData, sizeof(PositionBuffer));
 
 		for (GameObject* pGameObject : m_GameObjects)
@@ -258,9 +267,9 @@ void Application::Render(float DeltaTime)
 			MapUpdateAndUnmapSubresource(m_pDeviceContext, m_pMatrixBuffer, &m_MatrixData, sizeof(MatrixBuffer));
 			pGameObject->Render(m_pDeviceContext);
 		}
-
-		m_pSwapChain->Present(0, 0);								// Presents a rendered image to the user.
 	}
+
+	m_pSwapChain->Present(0, 0);								// Presents a rendered image to the user.
 }
 
 

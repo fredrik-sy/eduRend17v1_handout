@@ -45,6 +45,7 @@ private:
 	ID3D11DepthStencilView* m_pDepthStencilViews[DEPTH_STENCIL_LEN];
 	ID3D11VertexShader* m_pVertexShaders[INPUT_LEN];
 	ID3D11SamplerState* m_pSamplerState;
+	ID3D11SamplerState* m_pComparisonSamplerState;
 	IDXGISwapChain* m_pSwapChain;
 
 	//
