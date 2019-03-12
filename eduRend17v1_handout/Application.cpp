@@ -16,27 +16,22 @@ Application::Application(HINSTANCE hInstance, WNDPROC lpfnWndProc)
 	CreateSamplerState(m_pDevice, &m_pSamplerState);
 	CreateComparisonSamplerState(m_pDevice, &m_pComparisonSamplerState);
 
-	for (unsigned int i = 0; i < SHADER_RESOURCE_LEN; ++i)
-	{
-		CreateShaderResourceBuffer(m_pDevice, GetClientWidth(), GetClientHeight(), &m_pShaderResourceBuffers[i]);
-		CreateShaderResourceView(m_pDevice, m_pShaderResourceBuffers[i], &m_pShaderResourceViews[i]);
-		//CreateRenderTargetView(m_pDevice, m_pSwapChain, m_pShaderResourceBuffers[i], &m_pRenderTargetViews[i]);
-	}
-
 	for (unsigned int i = 0; i < DEPTH_STENCIL_LEN; ++i)
 	{
 		if (i < SHADER_RESOURCE_LEN)
 		{
+			CreateShaderResourceBuffer(m_pDevice, GetClientWidth(), GetClientHeight(), &m_pShaderResourceBuffers[i]);
+			CreateShaderResourceView(m_pDevice, m_pShaderResourceBuffers[i], &m_pShaderResourceViews[i]);
 			CreateDepthStencilView(m_pDevice, m_pShaderResourceBuffers[i], &m_pDepthStencilViews[i]);
 		}
 		else
 		{
-			CreateDepthStencilBuffer(m_pDevice, GetClientWidth(), GetClientHeight(), &m_pDepthStencilBuffers[i]);
-			CreateDepthStencilView(m_pDevice, m_pDepthStencilBuffers[i], &m_pDepthStencilViews[i]);
+			CreateDepthStencilBuffer(m_pDevice, GetClientWidth(), GetClientHeight(), &m_pDepthStencilBuffer);
+			CreateDepthStencilView(m_pDevice, m_pDepthStencilBuffer, &m_pDepthStencilViews[i]);
 		}
 	}
 
-	CreateRenderTargetView(m_pDevice, m_pSwapChain, NULL, &m_pRenderTargetViews[DEPTH_STENCIL_LEN - 1]);
+	CreateRenderTargetView(m_pDevice, m_pSwapChain, &m_pRenderTargetView);
 
 	ID3DBlob* pCode;
 	D3D11_INPUT_ELEMENT_DESC InputElementDescs[] = {
@@ -47,21 +42,21 @@ Application::Application(HINSTANCE hInstance, WNDPROC lpfnWndProc)
 		{ "TEX",		0, DXGI_FORMAT_R32G32_FLOAT,	0, 48,	D3D11_INPUT_PER_VERTEX_DATA, 0 } };
 
 
-	CompileShader((GetCurrentPathW() + L"/assets/shaders/ShadowMapping.vs.hlsl").c_str(), "VS_main", "vs_5_0", &pCode);
+	CompileShader(L"../assets/shaders/ShadowMapping.vs.hlsl", "VS_main", "vs_5_0", &pCode);
 	CreateVertexShader(m_pDevice, pCode, &m_pVertexShaders[0]);
 	CreateInputLayout(m_pDevice, InputElementDescs, ARRAYSIZE(InputElementDescs), pCode, &m_pInputLayouts[0]);
 	SAFE_RELEASE(pCode);
 
-	CompileShader((GetCurrentPathW() + L"/assets/shaders/ShadowMapping.ps.hlsl").c_str(), "PS_main", "ps_5_0", &pCode);
+	CompileShader(L"../assets/shaders/ShadowMapping.ps.hlsl", "PS_main", "ps_5_0", &pCode);
 	CreatePixelShader(m_pDevice, pCode, &m_pPixelShaders[0]);
 	SAFE_RELEASE(pCode);
 
-	CompileShader((GetCurrentPathW() + L"/assets/shaders/DrawTri.vs.hlsl").c_str(), "VS_main", "vs_5_0", &pCode);
+	CompileShader(L"../assets/shaders/DrawTri.vs.hlsl", "VS_main", "vs_5_0", &pCode);
 	CreateVertexShader(m_pDevice, pCode, &m_pVertexShaders[INPUT_LEN - 1]);
 	CreateInputLayout(m_pDevice, InputElementDescs, ARRAYSIZE(InputElementDescs), pCode, &m_pInputLayouts[INPUT_LEN - 1]);
 	SAFE_RELEASE(pCode);
 
-	CompileShader((GetCurrentPathW() + L"/assets/shaders/DrawTri.ps.hlsl").c_str(), "PS_main", "ps_5_0", &pCode);
+	CompileShader(L"../assets/shaders/DrawTri.ps.hlsl", "PS_main", "ps_5_0", &pCode);
 	CreatePixelShader(m_pDevice, pCode, &m_pPixelShaders[INPUT_LEN - 1]);
 	SAFE_RELEASE(pCode);
 
@@ -76,6 +71,8 @@ Application::~Application()
 	SAFE_RELEASE(m_pDeviceContext);
 	SAFE_RELEASE(m_pSwapChain);
 	SAFE_RELEASE(m_pRasterizerState);
+	SAFE_RELEASE(m_pRenderTargetView);
+	SAFE_RELEASE(m_pDepthStencilBuffer);
 	SAFE_RELEASE(m_pSamplerState);
 	SAFE_RELEASE(m_pComparisonSamplerState);
 	SAFE_RELEASE(m_pMatrixBuffer);
@@ -90,12 +87,6 @@ Application::~Application()
 
 	for (ID3D11DepthStencilView* pDepthStencilView : m_pDepthStencilViews)
 		SAFE_RELEASE(pDepthStencilView);
-
-	for (ID3D11Texture2D* pDepthStencilBuffer : m_pDepthStencilBuffers)
-		SAFE_RELEASE(pDepthStencilBuffer);
-
-	for (ID3D11RenderTargetView* pRenderTargetView : m_pRenderTargetViews)
-		SAFE_RELEASE(pRenderTargetView);
 
 	for (ID3D11VertexShader* pVertexShader : m_pVertexShaders)
 		SAFE_RELEASE(pVertexShader);
@@ -177,6 +168,7 @@ void Application::Initialize()
 	m_pDeviceContext->RSSetState(m_pRasterizerState);										// Set the rasterizer state for the rasterizer stage of the pipeline.
 	m_pDeviceContext->RSSetViewports(1, &CreateSingleViewport());							// Bind viewport to the rasterizer stage of the pipeline.
 	m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerState);								// Set samplers to the pixel shader pipeline stage.
+	m_pDeviceContext->PSSetSamplers(1, 1, &m_pComparisonSamplerState);
 
 	// Set buffers used by the pipeline stage.
 	m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pMatrixBuffer);
@@ -230,24 +222,23 @@ void Application::Render(float DeltaTime)
 	// Shadow mapping and render View.
 	for (unsigned int i = 0; i < DEPTH_STENCIL_LEN; ++i)
 	{
-		// Clear render view and depth-stencil resource.
-		static const FLOAT RGBA[4] = { 100, 149, 237, 1 };													// Cornflower blue.
-		m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetViews[1], RGBA);
-		m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilViews[i], D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);
-
 		unsigned int j = i < SHADER_RESOURCE_LEN ? 0 : 1;
-		m_pDeviceContext->IASetInputLayout(m_pInputLayouts[j]);												// Bind to input-assembler stage.
+
+		m_pDeviceContext->IASetInputLayout(m_pInputLayouts[j]);																// Bind to input-assembler stage.
+		m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilViews[i], D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);	// Clear depth-stencil resource.
 
 		if (j)
 		{
-			m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetViews[i], m_pDepthStencilViews[i]);		// Bind render targets and the depth-stencil buffer to the output-merger stage.
+			static const FLOAT RGBA[4] = { 100, 149, 237, 1 };													// Cornflower blue.
+			m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, RGBA);									// Clear render view resource.
+			m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, m_pDepthStencilViews[i]);				// Bind render targets and the depth-stencil buffer to the output-merger stage.
 			m_pDeviceContext->PSSetShaderResources(5, 1, &m_pShaderResourceViews[0]);
 			m_MatrixData.Projection = m_Camera.GetProjectionMatrix();
 			m_MatrixData.WorldToView = m_Camera.GetWorldToViewMatrix();
 		}
 		else
 		{
-			m_pDeviceContext->OMSetRenderTargets(0, nullptr, m_pDepthStencilViews[i]);						// Bind render targets and the depth-stencil buffer to the output-merger stage.
+			m_pDeviceContext->OMSetRenderTargets(0, NULL, m_pDepthStencilViews[i]);							// Bind render targets and the depth-stencil buffer to the output-merger stage.
 			m_MatrixData.Projection = m_DirectionalLight.GetProjectionMatrix();
 			m_MatrixData.WorldToView = m_DirectionalLight.GetWorldToViewMatrix();
 		}
@@ -303,10 +294,11 @@ void Application::OnResize()
 			SAFE_RELEASE(m_pShaderResourceViews[i]);
 		}
 
-		SAFE_RELEASE(m_pRenderTargetViews[i]);
-		SAFE_RELEASE(m_pDepthStencilBuffers[i]);
 		SAFE_RELEASE(m_pDepthStencilViews[i]);
 	}
+
+	SAFE_RELEASE(m_pDepthStencilBuffer);
+	SAFE_RELEASE(m_pRenderTargetView);
 
 	if (FAILED(m_pSwapChain->ResizeBuffers(
 		0,				// Preserve the existing number of buffers in the swap chain.
@@ -318,20 +310,20 @@ void Application::OnResize()
 
 	for (unsigned int i = 0; i < DEPTH_STENCIL_LEN; ++i)
 	{
-		CreateDepthStencilBuffer(m_pDevice, GetClientWidth(), GetClientHeight(), &m_pDepthStencilBuffers[i]);
-		CreateDepthStencilView(m_pDevice, m_pDepthStencilBuffers[i], &m_pDepthStencilViews[i]);
-
 		if (i < SHADER_RESOURCE_LEN)
 		{
 			CreateShaderResourceBuffer(m_pDevice, GetClientWidth(), GetClientHeight(), &m_pShaderResourceBuffers[i]);
 			CreateShaderResourceView(m_pDevice, m_pShaderResourceBuffers[i], &m_pShaderResourceViews[i]);
-			CreateRenderTargetView(m_pDevice, m_pSwapChain, m_pShaderResourceBuffers[i], &m_pRenderTargetViews[i]);
+			CreateDepthStencilView(m_pDevice, m_pShaderResourceBuffers[i], &m_pDepthStencilViews[i]);
 		}
 		else
 		{
-			CreateRenderTargetView(m_pDevice, m_pSwapChain, NULL, &m_pRenderTargetViews[DEPTH_STENCIL_LEN - 1]);
+			CreateDepthStencilBuffer(m_pDevice, GetClientWidth(), GetClientHeight(), &m_pDepthStencilBuffer);
+			CreateDepthStencilView(m_pDevice, m_pDepthStencilBuffer, &m_pDepthStencilViews[i]);
 		}
 	}
+
+	CreateRenderTargetView(m_pDevice, m_pSwapChain, &m_pRenderTargetView);
 
 	m_pDeviceContext->RSSetViewports(1, &CreateSingleViewport());						// Bind viewport to the rasterizer stage of the pipeline.
 	m_Camera.SetAspectRatio(GetAspectRatio());

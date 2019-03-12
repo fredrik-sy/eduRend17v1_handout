@@ -33,8 +33,7 @@ struct PSIn
     float3 Normal : NORMAL;
     float3 Tangent : TANGENT;
     float3 Binormal : BINORMAL;
-    float2 TexCoord : TEX0;
-    float Depth : TEX1;
+    float2 TexCoord : TEX;
 };
 
 float3 SampleTexture(float3 Constant, Texture2D Tex, float2 TexCoord)
@@ -86,17 +85,19 @@ float4 PS_main(PSIn input) : SV_Target
     ShadowTexCoord.x = 0.5f + (input.LightPos.x / input.LightPos.w * 0.5f);
     ShadowTexCoord.y = 0.5f - (input.LightPos.y / input.LightPos.w * 0.5f);
     float PixelDepth = input.LightPos.z / input.LightPos.w;
-
+    
     if (saturate(ShadowTexCoord.x) == ShadowTexCoord.x &&
         saturate(ShadowTexCoord.y) == ShadowTexCoord.y &&
         PixelDepth > 0)
     {
         float Margin = acos(saturate(LdotN));
         float Epsilon = clamp(0.0005 / Margin, 0, 0.1);
+        
+        float Lighting = ShadowTexture.SampleCmpLevelZero(ComparisonSampler, ShadowTexCoord, PixelDepth - Epsilon);
+        //float Lighting = ShadowTexture.Sample(Sampler, ShadowTexCoord).r;
 
-        float Lighting = ShadowTexture.Sample(Sampler, ShadowTexCoord).r;
-
-        if (Lighting < (PixelDepth - Epsilon))
+        //if (Lighting < (PixelDepth - Epsilon))
+        if (Lighting < PixelDepth)
         {
             float3 Shadow = (Lighting * (Ka + Diffuse + Specular)) + (Ka * (1.0f - Lighting));
             return float4(Shadow, 1.0f);

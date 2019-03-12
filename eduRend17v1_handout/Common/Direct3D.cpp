@@ -57,28 +57,6 @@ void CreateRenderTargetView(ID3D11Device* pDevice, IDXGISwapChain* pSwapChain, I
 	if (FAILED(pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBuffer)))
 		throw std::exception("GetBuffer Failed");
 
-	try
-	{
-		CreateRenderTargetView(pDevice, pSwapChain, pBuffer, ppRenderTargetView);
-	}
-	catch (const std::exception e)
-	{
-		SAFE_RELEASE(pBuffer);
-		throw;
-	}
-
-	SAFE_RELEASE(pBuffer);
-}
-
-
-void CreateRenderTargetView(ID3D11Device* pDevice, IDXGISwapChain* pSwapChain, ID3D11Texture2D* pBuffer, ID3D11RenderTargetView** ppRenderTargetView)
-{
-	if (pBuffer == NULL)
-	{
-		if (FAILED(pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBuffer)))
-			throw std::exception("GetBuffer Failed");
-	}
-
 	if (FAILED(pDevice->CreateRenderTargetView(
 		pBuffer,
 		NULL,																			// Create a view that can access all of the subresources in mipmap level 0.

@@ -40,8 +40,8 @@ private:
 	ID3D11InputLayout* m_pInputLayouts[INPUT_LEN];
 	ID3D11PixelShader* m_pPixelShaders[INPUT_LEN];
 	ID3D11RasterizerState* m_pRasterizerState;
-	ID3D11RenderTargetView* m_pRenderTargetViews[DEPTH_STENCIL_LEN];
-	ID3D11Texture2D* m_pDepthStencilBuffers[DEPTH_STENCIL_LEN];
+	ID3D11RenderTargetView* m_pRenderTargetView;
+	ID3D11Texture2D* m_pDepthStencilBuffer;
 	ID3D11DepthStencilView* m_pDepthStencilViews[DEPTH_STENCIL_LEN];
 	ID3D11VertexShader* m_pVertexShaders[INPUT_LEN];
 	ID3D11SamplerState* m_pSamplerState;

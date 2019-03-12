@@ -9,11 +9,11 @@
 //
 void CreateDeviceAndSwapChain(HWND OutputWindow, ID3D11Device** ppDevice, ID3D11DeviceContext** ppDeviceContext, IDXGISwapChain** ppSwapChain);
 
+
 //
 //   PURPOSE: Creates a render-target view for accessing resource data.
 //
 void CreateRenderTargetView(ID3D11Device* pDevice, IDXGISwapChain* pSwapChain, ID3D11RenderTargetView** ppRenderTargetView);
-void CreateRenderTargetView(ID3D11Device* pDevice, IDXGISwapChain* pSwapChain, ID3D11Texture2D* pBuffer, ID3D11RenderTargetView** ppRenderTargetView);
 
 
 //
