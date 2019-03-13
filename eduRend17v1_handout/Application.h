@@ -16,8 +16,8 @@ using std::vector;
 #define SHADER_RESOURCE_LEN 1
 #define DEPTH_STENCIL_LEN (1 + SHADER_RESOURCE_LEN)
 #define INPUT_LEN 2
-#define SHADOW_MAPPING_WIDTH 1024
-#define SHADOW_MAPPING_HEIGHT 1024
+#define SHADOW_MAPPING_WIDTH 4096
+#define SHADOW_MAPPING_HEIGHT 4096
 
 class Application : private Window
 {
@@ -38,7 +38,7 @@ private:
 	ID3D11Device* m_pDevice;
 	ID3D11DeviceContext* m_pDeviceContext;
 	ID3D11InputLayout* m_pInputLayouts[INPUT_LEN];
-	ID3D11PixelShader* m_pPixelShaders[INPUT_LEN];
+	ID3D11PixelShader* m_pPixelShader;
 	ID3D11RasterizerState* m_pRasterizerState;
 	ID3D11RenderTargetView* m_pRenderTargetView;
 	ID3D11Texture2D* m_pDepthStencilBuffer;
@@ -70,7 +70,6 @@ private:
 	InputHandler m_InputHandler;
 	vector<GameObject*> m_GameObjects;
 
-	D3D11_VIEWPORT CreateSingleViewport();
 	void OnResize();
 
 };

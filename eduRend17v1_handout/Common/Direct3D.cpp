@@ -324,3 +324,14 @@ std::wstring GetCurrentPathW()
 	std::wstring FileName(lpBuffer);
 	return FileName.substr(0, FileName.find_last_of(L"\\"));
 }
+
+D3D11_VIEWPORT CreateViewport(FLOAT Width, FLOAT Height)
+{
+	D3D11_VIEWPORT Viewport;
+	ZeroMemory(&Viewport, sizeof(D3D11_VIEWPORT));
+	Viewport.Width = Width;
+	Viewport.Height = Height;
+	Viewport.MinDepth = 0.0f;
+	Viewport.MaxDepth = 1.0f;
+	return Viewport;
+}

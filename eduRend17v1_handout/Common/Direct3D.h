@@ -122,3 +122,8 @@ inline void CreateVertexBuffer(ID3D11Device* pDevice, std::vector<T>* pVertices,
 //
 std::string GetCurrentPathA();
 std::wstring GetCurrentPathW();
+
+//
+//   PURPOSE: Creates a viewport.
+//
+D3D11_VIEWPORT CreateViewport(FLOAT Width, FLOAT Height);

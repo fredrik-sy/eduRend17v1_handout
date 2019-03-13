@@ -12,6 +12,7 @@ Application::Application(HINSTANCE hInstance, WNDPROC lpfnWndProc)
 	: Window("eduRend", "eduRend", hInstance, lpfnWndProc)
 {
 	CreateDeviceAndSwapChain(GetWindowHandle(), &m_pDevice, &m_pDeviceContext, &m_pSwapChain);
+	CreateRenderTargetView(m_pDevice, m_pSwapChain, &m_pRenderTargetView);
 	CreateRasterizerState(m_pDevice, &m_pRasterizerState, D3D11_CULL_BACK);
 	CreateSamplerState(m_pDevice, &m_pSamplerState);
 	CreateComparisonSamplerState(m_pDevice, &m_pComparisonSamplerState);
@@ -20,7 +21,7 @@ Application::Application(HINSTANCE hInstance, WNDPROC lpfnWndProc)
 	{
 		if (i < SHADER_RESOURCE_LEN)
 		{
-			CreateShaderResourceBuffer(m_pDevice, GetClientWidth(), GetClientHeight(), &m_pShaderResourceBuffers[i]);
+			CreateShaderResourceBuffer(m_pDevice, SHADOW_MAPPING_WIDTH, SHADOW_MAPPING_HEIGHT, &m_pShaderResourceBuffers[i]);
 			CreateShaderResourceView(m_pDevice, m_pShaderResourceBuffers[i], &m_pShaderResourceViews[i]);
 			CreateDepthStencilView(m_pDevice, m_pShaderResourceBuffers[i], &m_pDepthStencilViews[i]);
 		}
@@ -30,8 +31,6 @@ Application::Application(HINSTANCE hInstance, WNDPROC lpfnWndProc)
 			CreateDepthStencilView(m_pDevice, m_pDepthStencilBuffer, &m_pDepthStencilViews[i]);
 		}
 	}
-
-	CreateRenderTargetView(m_pDevice, m_pSwapChain, &m_pRenderTargetView);
 
 	ID3DBlob* pCode;
 	D3D11_INPUT_ELEMENT_DESC InputElementDescs[] = {
@@ -47,17 +46,13 @@ Application::Application(HINSTANCE hInstance, WNDPROC lpfnWndProc)
 	CreateInputLayout(m_pDevice, InputElementDescs, ARRAYSIZE(InputElementDescs), pCode, &m_pInputLayouts[0]);
 	SAFE_RELEASE(pCode);
 
-	CompileShader(L"../assets/shaders/ShadowMapping.ps.hlsl", "PS_main", "ps_5_0", &pCode);
-	CreatePixelShader(m_pDevice, pCode, &m_pPixelShaders[0]);
-	SAFE_RELEASE(pCode);
-
 	CompileShader(L"../assets/shaders/DrawTri.vs.hlsl", "VS_main", "vs_5_0", &pCode);
 	CreateVertexShader(m_pDevice, pCode, &m_pVertexShaders[INPUT_LEN - 1]);
 	CreateInputLayout(m_pDevice, InputElementDescs, ARRAYSIZE(InputElementDescs), pCode, &m_pInputLayouts[INPUT_LEN - 1]);
 	SAFE_RELEASE(pCode);
 
 	CompileShader(L"../assets/shaders/DrawTri.ps.hlsl", "PS_main", "ps_5_0", &pCode);
-	CreatePixelShader(m_pDevice, pCode, &m_pPixelShaders[INPUT_LEN - 1]);
+	CreatePixelShader(m_pDevice, pCode, &m_pPixelShader);
 	SAFE_RELEASE(pCode);
 
 	while (!m_InputHandler.Initialize(hInstance, GetWindowHandle(), GetClientWidth(), GetClientHeight()))		// Continue initialize until it succeeds, since this will fail if window has no focus.
@@ -78,6 +73,7 @@ Application::~Application()
 	SAFE_RELEASE(m_pMatrixBuffer);
 	SAFE_RELEASE(m_pPositionBuffer);
 	SAFE_RELEASE(m_pPhongBuffer);
+	SAFE_RELEASE(m_pPixelShader);
 
 	for (ID3D11ShaderResourceView* pShaderResourceView : m_pShaderResourceViews)
 		SAFE_RELEASE(pShaderResourceView);
@@ -90,9 +86,6 @@ Application::~Application()
 
 	for (ID3D11VertexShader* pVertexShader : m_pVertexShaders)
 		SAFE_RELEASE(pVertexShader);
-
-	for (ID3D11PixelShader* pPixelShader : m_pPixelShaders)
-		SAFE_RELEASE(pPixelShader);
 
 	for (ID3D11InputLayout* pInputLayout : m_pInputLayouts)
 		SAFE_RELEASE(pInputLayout);
@@ -166,7 +159,6 @@ void Application::Initialize()
 
 	m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);		// How the pipeline interprets vertex data that is bound to the input-assembler stage. Different topology can be used for different vertex data.
 	m_pDeviceContext->RSSetState(m_pRasterizerState);										// Set the rasterizer state for the rasterizer stage of the pipeline.
-	m_pDeviceContext->RSSetViewports(1, &CreateSingleViewport());							// Bind viewport to the rasterizer stage of the pipeline.
 	m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerState);								// Set samplers to the pixel shader pipeline stage.
 	m_pDeviceContext->PSSetSamplers(1, 1, &m_pComparisonSamplerState);
 
@@ -185,7 +177,8 @@ void Application::LoadContent()
 	m_GameObjects.push_back(new WoodDoll(m_pDevice, m_pDeviceContext, m_pPhongBuffer));
 	m_Camera.SetAspectRatio(GetAspectRatio());
 	m_Camera.SetPosition(0.0f, 0.0f, 5.0f);
-	m_DirectionalLight.SetPosition(0.0f, 5.0f, 0.0f);
+	m_DirectionalLight.Rotate(0.0f, -fPI / 2.0f, 0.0f);
+	m_DirectionalLight.SetPosition(0.0f, 20.0f, 0.0f);
 
 	m_LightMatrixData.WorldToView = m_DirectionalLight.GetWorldToViewMatrix();
 	m_LightMatrixData.Projection = m_DirectionalLight.GetProjectionMatrix();
@@ -223,24 +216,24 @@ void Application::Render(float DeltaTime)
 	for (unsigned int i = 0; i < DEPTH_STENCIL_LEN; ++i)
 	{
 		unsigned int j = i < SHADER_RESOURCE_LEN ? 0 : 1;
+		static const FLOAT RGBA[4] = { 100, 149, 237, 1 };																	// Cornflower blue.
 
 		m_pDeviceContext->IASetInputLayout(m_pInputLayouts[j]);																// Bind to input-assembler stage.
+		m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, RGBA);													// Clear render view resource.
 		m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilViews[i], D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);	// Clear depth-stencil resource.
 
 		if (j)
 		{
-			static const FLOAT RGBA[4] = { 100, 149, 237, 1 };													// Cornflower blue.
-			m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, RGBA);									// Clear render view resource.
-			m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, m_pDepthStencilViews[i]);				// Bind render targets and the depth-stencil buffer to the output-merger stage.
+			m_pDeviceContext->RSSetViewports(1, &CreateViewport(GetClientWidth(), GetClientHeight()));						// Bind viewport to the rasterizer stage of the pipeline.
+			m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, m_pDepthStencilViews[i]);							// Bind render targets and the depth-stencil buffer to the output-merger stage.
+			m_pDeviceContext->PSSetShader(m_pPixelShader, NULL, 0);
 			m_pDeviceContext->PSSetShaderResources(5, 1, &m_pShaderResourceViews[0]);
-			m_MatrixData.Projection = m_Camera.GetProjectionMatrix();
-			m_MatrixData.WorldToView = m_Camera.GetWorldToViewMatrix();
 		}
 		else
 		{
-			m_pDeviceContext->OMSetRenderTargets(0, NULL, m_pDepthStencilViews[i]);							// Bind render targets and the depth-stencil buffer to the output-merger stage.
-			m_MatrixData.Projection = m_DirectionalLight.GetProjectionMatrix();
-			m_MatrixData.WorldToView = m_DirectionalLight.GetWorldToViewMatrix();
+			m_pDeviceContext->RSSetViewports(1, &CreateViewport(SHADOW_MAPPING_WIDTH, SHADOW_MAPPING_HEIGHT));
+			m_pDeviceContext->OMSetRenderTargets(0, NULL, m_pDepthStencilViews[i]);
+			m_pDeviceContext->PSSetShader(NULL, NULL, 0);
 		}
 
 		// Set shaders to the device.
@@ -248,7 +241,9 @@ void Application::Render(float DeltaTime)
 		m_pDeviceContext->HSSetShader(NULL, NULL, 0);				// Hull shader. Passing NULL disables the shader for this pipeline stage.
 		m_pDeviceContext->DSSetShader(NULL, NULL, 0);				// Domain shader.
 		m_pDeviceContext->GSSetShader(NULL, NULL, 0);				// Geometry shader.
-		m_pDeviceContext->PSSetShader(m_pPixelShaders[j], NULL, 0);
+
+		m_MatrixData.Projection = j ? m_Camera.GetProjectionMatrix() : m_DirectionalLight.GetProjectionMatrix();
+		m_MatrixData.WorldToView = j ? m_Camera.GetWorldToViewMatrix() : m_DirectionalLight.GetWorldToViewMatrix();
 
 		MapUpdateAndUnmapSubresource(m_pDeviceContext, m_pPositionBuffer, &m_PositionData, sizeof(PositionBuffer));
 
@@ -266,19 +261,6 @@ void Application::Render(float DeltaTime)
 
 void Application::UnloadContent()
 {
-}
-
-
-D3D11_VIEWPORT Application::CreateSingleViewport()
-{
-	D3D11_VIEWPORT Viewport;
-	Viewport.Width = (FLOAT)GetClientWidth();
-	Viewport.Height = (FLOAT)GetClientHeight();
-	Viewport.MinDepth = 0;
-	Viewport.MaxDepth = 1;
-	Viewport.TopLeftX = 0;
-	Viewport.TopLeftY = 0;
-	return Viewport;
 }
 
 
@@ -325,6 +307,6 @@ void Application::OnResize()
 
 	CreateRenderTargetView(m_pDevice, m_pSwapChain, &m_pRenderTargetView);
 
-	m_pDeviceContext->RSSetViewports(1, &CreateSingleViewport());						// Bind viewport to the rasterizer stage of the pipeline.
+	m_pDeviceContext->RSSetViewports(1, &CreateViewport(GetClientWidth(), GetClientHeight()));						// Bind viewport to the rasterizer stage of the pipeline.
 	m_Camera.SetAspectRatio(GetAspectRatio());
 }
