@@ -13,12 +13,6 @@
 
 using std::vector;
 
-#define SHADER_RESOURCE_LEN 1
-#define DEPTH_STENCIL_LEN (1 + SHADER_RESOURCE_LEN)
-#define INPUT_LEN 2
-#define SHADOW_MAPPING_WIDTH 4096
-#define SHADOW_MAPPING_HEIGHT 4096
-
 class Application : private Window
 {
 public:

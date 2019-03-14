@@ -12,7 +12,11 @@
 #include "WICTextureLoader.h"
 #include "DDSTextureLoader.h"
 
-#define _USE_MATH_DEFINES
+#define INPUT_LEN 2
+#define SHADER_RESOURCE_LEN 1
+#define DEPTH_STENCIL_LEN (1 + SHADER_RESOURCE_LEN)
+#define SHADOW_MAPPING_WIDTH 1024
+#define SHADOW_MAPPING_HEIGHT 1024
 #define USE_CONSOLE
 #define SAFE_RELEASE(x) if( x ) { (x)->Release(); (x) = nullptr; }
 #define SAFE_DELETE(x) if( x ) { delete(x); (x) = nullptr; }

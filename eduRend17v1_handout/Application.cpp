@@ -13,7 +13,7 @@ Application::Application(HINSTANCE hInstance, WNDPROC lpfnWndProc)
 {
 	CreateDeviceAndSwapChain(GetWindowHandle(), &m_pDevice, &m_pDeviceContext, &m_pSwapChain);
 	CreateRenderTargetView(m_pDevice, m_pSwapChain, &m_pRenderTargetView);
-	CreateRasterizerState(m_pDevice, &m_pRasterizerState, D3D11_CULL_BACK);
+	CreateRasterizerState(m_pDevice, &m_pRasterizerState);
 	CreateSamplerState(m_pDevice, &m_pSamplerState);
 	CreateComparisonSamplerState(m_pDevice, &m_pComparisonSamplerState);
 
@@ -306,7 +306,5 @@ void Application::OnResize()
 	}
 
 	CreateRenderTargetView(m_pDevice, m_pSwapChain, &m_pRenderTargetView);
-
-	m_pDeviceContext->RSSetViewports(1, &CreateViewport(GetClientWidth(), GetClientHeight()));						// Bind viewport to the rasterizer stage of the pipeline.
 	m_Camera.SetAspectRatio(GetAspectRatio());
 }
