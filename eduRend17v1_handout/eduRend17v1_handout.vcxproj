@@ -118,9 +118,11 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>..\DirectXTK\lib\release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
-    <PostBuildEvent>
+    <PostBuildEvent />
+    <CustomBuildStep />
+    <PreBuildEvent>
       <Command>xcopy $(SolutionDir)assets $(SolutionDir)Build\Release\bin\assets /s /e /i /d /y</Command>
-    </PostBuildEvent>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -187,11 +189,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\assets\shaders\ShadowMapping.vs.hlsl">
-      <FileType>Document</FileType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\assets\shaders\ShadowMapping.ps.hlsl">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>
