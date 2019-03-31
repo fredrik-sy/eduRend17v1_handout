@@ -81,20 +81,22 @@ float4 PS_main(PSIn input) : SV_Target
     float3 Specular = Ks * max(pow(RdotV, Shininess), 0);
     
     // Transform clip space to texture space.
+    // Normal vector issue after transform.
     float2 ShadowTexCoord;
     ShadowTexCoord.x = 0.5f + (input.LightPos.x / input.LightPos.w * 0.5f);
     ShadowTexCoord.y = 0.5f - (input.LightPos.y / input.LightPos.w * 0.5f);
     float PixelDepth = input.LightPos.z / input.LightPos.w;
     
     if (saturate(ShadowTexCoord.x) == ShadowTexCoord.x &&
-        saturate(ShadowTexCoord.y) == ShadowTexCoord.y)
+        saturate(ShadowTexCoord.y) == ShadowTexCoord.y &&
+        PixelDepth > 0)
     {
         float Margin = acos(saturate(LdotN));
         float Epsilon = clamp(0.001 / Margin, 0, 0.1);
         
         float Lighting = ShadowTexture.SampleCmpLevelZero(ComparisonSampler, ShadowTexCoord, PixelDepth - Epsilon);
         //float Lighting = ShadowTexture.Sample(Sampler, ShadowTexCoord).r;
-
+        
         //if (Lighting < (PixelDepth - Epsilon))
         if (Lighting < PixelDepth)
         {
