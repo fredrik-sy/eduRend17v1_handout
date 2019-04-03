@@ -41,6 +41,14 @@ float3 SampleTexture(float3 Constant, Texture2D Tex, float2 TexCoord)
     return rgb.r == 0 && rgb.g == 0 && rgb.b == 0 ? Constant : Constant * rgb;
 }
 
+bool InFrustum(float4 Pos)
+{
+    return abs(Pos.x) < Pos.w
+        && abs(Pos.y) < Pos.w
+        && 0 < Pos.z
+        && Pos.z < Pos.w;
+}
+
 //-----------------------------------------------------------------------------------------
 // Pixel Shader
 //-----------------------------------------------------------------------------------------
@@ -88,7 +96,8 @@ float4 PS_main(PSIn input) : SV_Target
     float PixelDepth = input.LightPos.z / input.LightPos.w - Bias;
     
     if (saturate(ShadowTexCoord.x) == ShadowTexCoord.x &&
-        saturate(ShadowTexCoord.y) == ShadowTexCoord.y)
+        saturate(ShadowTexCoord.y) == ShadowTexCoord.y &&
+        InFrustum(input.LightPos))
     {
         float Lighting = ShadowTexture.Sample(Sampler, ShadowTexCoord).r;
         

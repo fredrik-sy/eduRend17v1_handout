@@ -65,5 +65,4 @@ void DirectionalLight::Update(float DeltaTime)
 		m_Velocity.z = -m_Velocity.z;
 
 	m_Position += m_Velocity * DeltaTime;
-	std::cout << m_Position << std::endl;
 }
