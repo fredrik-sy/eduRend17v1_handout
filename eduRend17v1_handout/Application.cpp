@@ -15,7 +15,6 @@ Application::Application(HINSTANCE hInstance, WNDPROC lpfnWndProc)
 	CreateRenderTargetView(m_pDevice, m_pSwapChain, &m_pRenderTargetView);
 	CreateRasterizerState(m_pDevice, &m_pRasterizerState, D3D11_CULL_BACK);
 	CreateSamplerState(m_pDevice, &m_pSamplerState);
-	CreateComparisonSamplerState(m_pDevice, &m_pComparisonSamplerState);
 
 	for (unsigned int i = 0; i < DEPTH_STENCIL_LEN; ++i)
 	{
@@ -69,7 +68,6 @@ Application::~Application()
 	SAFE_RELEASE(m_pRenderTargetView);
 	SAFE_RELEASE(m_pDepthStencilBuffer);
 	SAFE_RELEASE(m_pSamplerState);
-	SAFE_RELEASE(m_pComparisonSamplerState);
 	SAFE_RELEASE(m_pMatrixBuffer);
 	SAFE_RELEASE(m_pPositionBuffer);
 	SAFE_RELEASE(m_pPhongBuffer);
@@ -160,8 +158,7 @@ void Application::Initialize()
 	m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);		// How the pipeline interprets vertex data that is bound to the input-assembler stage. Different topology can be used for different vertex data.
 	m_pDeviceContext->RSSetState(m_pRasterizerState);										// Set the rasterizer state for the rasterizer stage of the pipeline.
 	m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerState);								// Set samplers to the pixel shader pipeline stage.
-	m_pDeviceContext->PSSetSamplers(1, 1, &m_pComparisonSamplerState);
-
+	
 	// Set buffers used by the pipeline stage.
 	m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pMatrixBuffer);
 	m_pDeviceContext->VSSetConstantBuffers(1, 1, &m_pLightMatrixBuffer);
@@ -177,14 +174,10 @@ void Application::LoadContent()
 	m_GameObjects.push_back(new WoodDoll(m_pDevice, m_pDeviceContext, m_pPhongBuffer));
 	m_Camera.SetAspectRatio(GetAspectRatio());
 	m_Camera.SetPosition(0.0f, 0.0f, 5.0f);
+
 	m_DirectionalLight.Rotate(0.0f, -fPI / 2.0f, 0.0f);
-	m_DirectionalLight.SetPosition(0.0f, 20.0f, 0.0f);
-
-	m_LightMatrixData.WorldToView = m_DirectionalLight.GetWorldToViewMatrix();
-	m_LightMatrixData.Projection = m_DirectionalLight.GetProjectionMatrix();
-	MapUpdateAndUnmapSubresource(m_pDeviceContext, m_pLightMatrixBuffer, &m_LightMatrixData, sizeof(LightMatrixBuffer));
-
-	m_PositionData.LightPosition = m_DirectionalLight.GetPosition();
+	m_DirectionalLight.SetPosition(0.0f, 10.0f, 0.0f);
+	m_DirectionalLight.SetVelocity(0.0f, 0.0f, 2 * fPI);
 }
 
 
@@ -206,7 +199,12 @@ void Application::Update(float DeltaTime)
 	for (GameObject* pGameObject : m_GameObjects)
 		pGameObject->Update(DeltaTime);
 
+	m_DirectionalLight.Update(DeltaTime);
+	m_LightMatrixData.WorldToView = m_DirectionalLight.GetWorldToViewMatrix();
+	m_LightMatrixData.Projection = m_DirectionalLight.GetProjectionMatrix();
+
 	m_PositionData.CameraPosition = m_Camera.GetPosition();
+	m_PositionData.LightPosition = m_DirectionalLight.GetPosition();
 }
 
 
@@ -245,6 +243,7 @@ void Application::Render(float DeltaTime)
 		m_MatrixData.Projection = j ? m_Camera.GetProjectionMatrix() : m_DirectionalLight.GetProjectionMatrix();
 		m_MatrixData.WorldToView = j ? m_Camera.GetWorldToViewMatrix() : m_DirectionalLight.GetWorldToViewMatrix();
 
+		MapUpdateAndUnmapSubresource(m_pDeviceContext, m_pLightMatrixBuffer, &m_LightMatrixData, sizeof(LightMatrixBuffer));
 		MapUpdateAndUnmapSubresource(m_pDeviceContext, m_pPositionBuffer, &m_PositionData, sizeof(PositionBuffer));
 
 		for (GameObject* pGameObject : m_GameObjects)

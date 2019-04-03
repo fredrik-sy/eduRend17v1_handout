@@ -16,8 +16,8 @@ using std::vector;
 #define SHADER_RESOURCE_LEN 1
 #define DEPTH_STENCIL_LEN (1 + SHADER_RESOURCE_LEN)
 #define INPUT_LEN 2
-#define SHADOW_MAPPING_WIDTH 4096
-#define SHADOW_MAPPING_HEIGHT 4096
+#define SHADOW_MAPPING_WIDTH 4092
+#define SHADOW_MAPPING_HEIGHT 4092
 
 class Application : private Window
 {
@@ -45,7 +45,6 @@ private:
 	ID3D11DepthStencilView* m_pDepthStencilViews[DEPTH_STENCIL_LEN];
 	ID3D11VertexShader* m_pVertexShaders[INPUT_LEN];
 	ID3D11SamplerState* m_pSamplerState;
-	ID3D11SamplerState* m_pComparisonSamplerState;
 	IDXGISwapChain* m_pSwapChain;
 
 	//

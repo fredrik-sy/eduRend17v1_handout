@@ -5,7 +5,6 @@ Texture2D dTexture : register(t3);
 Texture2D bumpTexture : register(t4);
 Texture2D ShadowTexture : register(t5);
 sampler Sampler : register(s0);
-SamplerComparisonState ComparisonSampler : register(s1);
 
 cbuffer PositionBuffer : register(b0)
 {
@@ -68,7 +67,7 @@ float4 PS_main(PSIn input) : SV_Target
         Normal = normalize(Normal * 2.0 - 1.0);
         Normal = mul(TBN, Normal);
     }
-    
+
     float3 L = normalize(LightPosition - input.WorldPos);
     float3 V = normalize(CameraPosition - input.WorldPos);
     float3 N = normalize(Normal);
@@ -84,18 +83,15 @@ float4 PS_main(PSIn input) : SV_Target
     float2 ShadowTexCoord;
     ShadowTexCoord.x = 0.5f + (input.LightPos.x / input.LightPos.w * 0.5f);
     ShadowTexCoord.y = 0.5f - (input.LightPos.y / input.LightPos.w * 0.5f);
-    float PixelDepth = input.LightPos.z / input.LightPos.w;
+
+    float Bias = 0.0005f;
+    float PixelDepth = input.LightPos.z / input.LightPos.w - Bias;
     
     if (saturate(ShadowTexCoord.x) == ShadowTexCoord.x &&
         saturate(ShadowTexCoord.y) == ShadowTexCoord.y)
     {
-        float Margin = acos(saturate(LdotN));
-        float Epsilon = clamp(0.001 / Margin, 0, 0.1);
+        float Lighting = ShadowTexture.Sample(Sampler, ShadowTexCoord).r;
         
-        float Lighting = ShadowTexture.SampleCmpLevelZero(ComparisonSampler, ShadowTexCoord, PixelDepth - Epsilon);
-        //float Lighting = ShadowTexture.Sample(Sampler, ShadowTexCoord).r;
-
-        //if (Lighting < (PixelDepth - Epsilon))
         if (Lighting < PixelDepth)
         {
             float3 Shadow = (Lighting * (Ka + Diffuse + Specular)) + (Ka * (1.0f - Lighting));

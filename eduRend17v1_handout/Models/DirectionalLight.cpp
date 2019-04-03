@@ -3,10 +3,8 @@
 
 DirectionalLight::DirectionalLight()
 	:
-	m_Left(-fPI / 4),
-	m_Right(fPI / 4),
-	m_Bottom(-fPI / 2),
-	m_Top(fPI / 2),
+	m_Width(10),
+	m_Height(10),
 	m_zNear(1),
 	m_zFar(10)
 {
@@ -50,8 +48,22 @@ mat4f DirectionalLight::GetWorldToViewMatrix()
 mat4f DirectionalLight::GetProjectionMatrix()
 {
 	return mat4f(
-		2 / (m_Right - m_Left), 0.0f, 0.0f, 0.0f,
-		0.0f, 2 / (m_Top - m_Bottom), 0.0f, 0.0f,
-		0.0f, 0.0f, 2 / (m_zNear - m_zFar), 0.0f,
-		-(m_Right + m_Left) / (m_Right - m_Left), -(m_Top + m_Bottom) / (m_Top - m_Bottom), -(m_zFar + m_zNear) / (m_zFar - m_zNear), 1.0f);
+		2.0f / m_Width, 0.0f, 0.0f, 0.0f,
+		0.0f, 2.0f / m_Height, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f / (m_zNear - m_zFar), 0.0f,
+		0.0f, 0.0f, m_zNear / (m_zNear - m_zFar), 1.0f);
+}
+
+#include <iostream>
+
+void DirectionalLight::Update(float DeltaTime)
+{
+	if (m_Position.z > 30)
+		m_Velocity.z = -m_Velocity.z;
+
+	if (m_Position.z < -30)
+		m_Velocity.z = -m_Velocity.z;
+
+	m_Position += m_Velocity * DeltaTime;
+	std::cout << m_Position << std::endl;
 }
