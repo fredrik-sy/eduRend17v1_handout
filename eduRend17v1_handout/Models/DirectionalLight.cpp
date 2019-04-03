@@ -54,8 +54,6 @@ mat4f DirectionalLight::GetProjectionMatrix()
 		0.0f, 0.0f, m_zNear / (m_zNear - m_zFar), 1.0f);
 }
 
-#include <iostream>
-
 void DirectionalLight::Update(float DeltaTime)
 {
 	if (m_Position.z > 30)
