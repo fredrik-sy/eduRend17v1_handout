@@ -118,9 +118,11 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>..\DirectXTK\lib\release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
-    <PostBuildEvent>
+    <PostBuildEvent />
+    <CustomBuildStep />
+    <PreBuildEvent>
       <Command>xcopy $(SolutionDir)assets $(SolutionDir)Build\Release\bin\assets /s /e /i /d /y</Command>
-    </PostBuildEvent>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>

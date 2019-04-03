@@ -109,11 +109,11 @@ void CreateDepthStencilView(ID3D11Device* pDevice, ID3D11Texture2D* pDepthStenci
 }
 
 
-void CreateRasterizerState(ID3D11Device* pDevice, ID3D11RasterizerState** ppRasterizerState, D3D11_CULL_MODE CullMode)
+void CreateRasterizerState(ID3D11Device* pDevice, ID3D11RasterizerState** ppRasterizerState)
 {
 	D3D11_RASTERIZER_DESC RasterizerDesc;
 	RasterizerDesc.FillMode = D3D11_FILL_SOLID;
-	RasterizerDesc.CullMode = CullMode;													// Don't draw triangles that are back-facing.
+	RasterizerDesc.CullMode = D3D11_CULL_BACK;											// Don't draw triangles that are back-facing.
 	RasterizerDesc.FrontCounterClockwise = TRUE;										// A triangle will be front-facing if its vertices are counter-clockwise.
 	RasterizerDesc.DepthBias = FALSE;
 	RasterizerDesc.DepthBiasClamp = 0;

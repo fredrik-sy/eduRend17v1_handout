@@ -31,7 +31,7 @@ void CreateDepthStencilView(ID3D11Device* pDevice, ID3D11Texture2D* pDepthStenci
 //
 //   PURPOSE: Creates a rasterizer state object that tells the rasterizer stage how to behave.
 //
-void CreateRasterizerState(ID3D11Device* pDevice, ID3D11RasterizerState** ppRasterizerState, D3D11_CULL_MODE CullMode);
+void CreateRasterizerState(ID3D11Device* pDevice, ID3D11RasterizerState** ppRasterizerState);
 
 
 //

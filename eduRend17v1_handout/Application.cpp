@@ -13,7 +13,7 @@ Application::Application(HINSTANCE hInstance, WNDPROC lpfnWndProc)
 {
 	CreateDeviceAndSwapChain(GetWindowHandle(), &m_pDevice, &m_pDeviceContext, &m_pSwapChain);
 	CreateRenderTargetView(m_pDevice, m_pSwapChain, &m_pRenderTargetView);
-	CreateRasterizerState(m_pDevice, &m_pRasterizerState, D3D11_CULL_BACK);
+	CreateRasterizerState(m_pDevice, &m_pRasterizerState);
 	CreateSamplerState(m_pDevice, &m_pSamplerState);
 
 	for (unsigned int i = 0; i < DEPTH_STENCIL_LEN; ++i)
@@ -40,17 +40,17 @@ Application::Application(HINSTANCE hInstance, WNDPROC lpfnWndProc)
 		{ "TEX",		0, DXGI_FORMAT_R32G32_FLOAT,	0, 48,	D3D11_INPUT_PER_VERTEX_DATA, 0 } };
 
 
-	CompileShader(L"../assets/shaders/ShadowMapping.vs.hlsl", "VS_main", "vs_5_0", &pCode);
+	CompileShader((GetCurrentPathW() + L"/assets/shaders/ShadowMapping.vs.hlsl").c_str(), "VS_main", "vs_5_0", &pCode);
 	CreateVertexShader(m_pDevice, pCode, &m_pVertexShaders[0]);
 	CreateInputLayout(m_pDevice, InputElementDescs, ARRAYSIZE(InputElementDescs), pCode, &m_pInputLayouts[0]);
 	SAFE_RELEASE(pCode);
 
-	CompileShader(L"../assets/shaders/DrawTri.vs.hlsl", "VS_main", "vs_5_0", &pCode);
+	CompileShader((GetCurrentPathW() + L"/assets/shaders/DrawTri.vs.hlsl").c_str(), "VS_main", "vs_5_0", &pCode);
 	CreateVertexShader(m_pDevice, pCode, &m_pVertexShaders[INPUT_LEN - 1]);
 	CreateInputLayout(m_pDevice, InputElementDescs, ARRAYSIZE(InputElementDescs), pCode, &m_pInputLayouts[INPUT_LEN - 1]);
 	SAFE_RELEASE(pCode);
 
-	CompileShader(L"../assets/shaders/DrawTri.ps.hlsl", "PS_main", "ps_5_0", &pCode);
+	CompileShader((GetCurrentPathW() + L"/assets/shaders/DrawTri.ps.hlsl").c_str(), "PS_main", "ps_5_0", &pCode);
 	CreatePixelShader(m_pDevice, pCode, &m_pPixelShader);
 	SAFE_RELEASE(pCode);
 
@@ -305,7 +305,5 @@ void Application::OnResize()
 	}
 
 	CreateRenderTargetView(m_pDevice, m_pSwapChain, &m_pRenderTargetView);
-
-	m_pDeviceContext->RSSetViewports(1, &CreateViewport(GetClientWidth(), GetClientHeight()));						// Bind viewport to the rasterizer stage of the pipeline.
 	m_Camera.SetAspectRatio(GetAspectRatio());
 }

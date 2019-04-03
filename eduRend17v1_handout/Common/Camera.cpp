@@ -1,9 +1,8 @@
 #include "Camera.h"
-#include <math.h>
 
 
 Camera::Camera()
-	: m_FOV((float)M_PI / 4.0f),
+	: m_FOV(fPI / 4.0f),
 	m_zNear(1.0f),
 	m_zFar(500.0f),
 	m_Orientation(0.0f, 0.0f, 0.0f)

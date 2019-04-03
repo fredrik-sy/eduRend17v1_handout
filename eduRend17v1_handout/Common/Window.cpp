@@ -29,7 +29,7 @@ Window::~Window()
 void Window::CreateWindowFrame(HINSTANCE hInstance)
 {
 	m_WindowHandle = CreateWindow(m_pClassName, m_pTitle, WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, nullptr, nullptr, hInstance, nullptr);
 
 	if (m_WindowHandle == NULL)
 		throw std::exception("CreateWindow Failed");
